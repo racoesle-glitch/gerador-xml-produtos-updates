@@ -1,0 +1,1647 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gerador XML Produtos</title>
+<style>
+:root {
+  --bg: #f4f7f5;
+  --surface: #ffffff;
+  --surface-2: #f8fbf9;
+  --text: #17211b;
+  --muted: #68756f;
+  --line: #d8e2dd;
+  --accent: #126f3d;
+  --accent-dark: #0b5730;
+  --accent-soft: #e8f6ee;
+  --danger: #b42318;
+  --warn: #9a6700;
+  --warn-soft: #fff7e1;
+  --ok-soft: #e8f6ee;
+  --shadow: 0 12px 28px rgba(20, 34, 26, .08);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+button, input, select, textarea {
+  font: inherit;
+}
+button {
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--text);
+  padding: 0 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+button:hover { border-color: #a8b8b0; }
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+button.primary:hover { background: var(--accent-dark); }
+button.soft {
+  background: var(--accent-soft);
+  border-color: #bfdfcc;
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+button.danger { color: var(--danger); }
+button.small {
+  height: 30px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+input, select, textarea {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--text);
+}
+input, select {
+  height: 36px;
+  padding: 0 10px;
+}
+textarea {
+  width: 100%;
+  min-height: 188px;
+  padding: 12px;
+  resize: vertical;
+  line-height: 1.45;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
+.shell {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  min-height: 100vh;
+}
+.nav {
+  background: #0f3f28;
+  color: #eaf6ef;
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.brand {
+  display: grid;
+  gap: 4px;
+  padding: 4px 6px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.14);
+}
+.brand b {
+  font-size: 19px;
+  line-height: 1.15;
+}
+.brand span {
+  color: #b9d8c6;
+  font-size: 12px;
+}
+.nav-btn {
+  width: 100%;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #eaf6ef;
+  text-align: left;
+  border-radius: 7px;
+}
+.nav-btn:hover, .nav-btn.active {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(255,255,255,.14);
+}
+.nav-icon {
+  width: 22px;
+  text-align: center;
+  font-weight: 700;
+}
+.nav-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 8px;
+  color: #b9d8c6;
+  font-size: 12px;
+}
+.nav-footer button {
+  color: #eaf6ef;
+  border-color: rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08);
+}
+.content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.top {
+  height: 64px;
+  padding: 0 22px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.top h1 {
+  margin: 0;
+  font-size: 21px;
+}
+.top-actions, .tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.screen {
+  display: none;
+  padding: 18px 22px 24px;
+  min-width: 0;
+}
+.screen.active { display: block; }
+.home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) 360px;
+  gap: 16px;
+}
+.hero, .panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+.hero {
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+.hero h2 {
+  margin: 0;
+  color: var(--accent-dark);
+  font-size: 27px;
+}
+.hero p {
+  margin: 0;
+  max-width: 780px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 12px;
+}
+.action-card {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: left;
+  min-height: 118px;
+}
+.action-card b {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 18px;
+}
+.action-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: normal;
+}
+.action-card.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.action-card.primary span { color: #d9f0e3; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 10px;
+}
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 13px;
+}
+.stat b {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 3px;
+}
+.stat span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.panel-head h2 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--accent-dark);
+}
+.panel-body { padding: 14px; }
+.recent-list {
+  display: grid;
+  gap: 9px;
+}
+.doc-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+  display: grid;
+  gap: 8px;
+}
+.doc-card h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 12px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.ok {
+  background: var(--ok-soft);
+  color: var(--accent-dark);
+}
+.badge.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.editor-layout {
+  display: grid;
+  grid-template-columns: 390px minmax(0, 1fr);
+  gap: 16px;
+}
+.doc-header {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 150px 170px auto;
+  gap: 10px;
+  margin-bottom: 14px;
+  align-items: end;
+}
+.field {
+  display: grid;
+  gap: 6px;
+}
+.field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2a372f;
+}
+.section {
+  padding: 15px;
+  border-bottom: 1px solid var(--line);
+}
+.section:last-child { border-bottom: 0; }
+.section h2 {
+  margin: 0 0 12px;
+  color: var(--accent-dark);
+  font-size: 15px;
+}
+.hint {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.defaults {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.defaults label {
+  font-weight: 700;
+  color: #2a372f;
+  font-size: 12px;
+}
+.default-grid {
+  display: grid;
+  gap: 10px;
+}
+.actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.table-wrap {
+  overflow: auto;
+  max-height: 44vh;
+}
+table {
+  width: 100%;
+  min-width: 1080px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th, td {
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  padding: 7px;
+  vertical-align: middle;
+}
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--accent-soft);
+  color: #0f5132;
+  text-align: left;
+  font-size: 12px;
+}
+td:last-child, th:last-child { border-right: 0; }
+td input, td select {
+  width: 100%;
+  height: 30px;
+  border-color: transparent;
+  background: transparent;
+}
+td input:focus, td select:focus {
+  outline: 2px solid #b7dfc8;
+  background: #fff;
+}
+.row-number {
+  width: 44px;
+  color: var(--muted);
+  text-align: right;
+  background: var(--surface-2);
+}
+.empty {
+  padding: 28px;
+  text-align: center;
+  color: var(--muted);
+}
+.preview {
+  margin-top: 14px;
+}
+pre {
+  margin: 0;
+  max-height: 235px;
+  overflow: auto;
+  padding: 14px;
+  background: #fbfcfd;
+  color: #1f2a44;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.documents-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 160px auto auto auto;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.docs-table table { min-width: 980px; }
+.money { white-space: nowrap; }
+.modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 16, 12, .45);
+  padding: 20px;
+  z-index: 20;
+}
+.modal.open { display: flex; }
+.dialog {
+  width: min(880px, 96vw);
+  max-height: 88vh;
+  background: var(--surface);
+  border-radius: 8px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.22);
+  overflow: hidden;
+}
+.dialog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.dialog-head h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.dialog-body {
+  padding: 16px;
+  overflow: auto;
+  max-height: calc(88vh - 64px);
+}
+.template {
+  min-height: 260px;
+}
+.template-help {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 18px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.template-help code {
+  color: var(--text);
+  background: #eef3f0;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  background: #123b28;
+  color: #fff;
+  padding: 11px 14px;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: .2s ease;
+  z-index: 30;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (max-width: 1080px) {
+  .shell { grid-template-columns: 1fr; }
+  .nav {
+    min-height: auto;
+    flex-direction: row;
+    align-items: center;
+    overflow: auto;
+  }
+  .brand { min-width: 210px; border-bottom: 0; border-right: 1px solid rgba(255,255,255,.14); }
+  .nav-footer { margin-left: auto; margin-top: 0; min-width: 160px; }
+  .home-grid, .editor-layout { grid-template-columns: 1fr; }
+  .doc-header { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 740px) {
+  .top { height: auto; align-items: stretch; flex-direction: column; padding: 14px; }
+  .screen { padding: 14px; }
+  .quick-actions, .stats, .documents-toolbar, .doc-header { grid-template-columns: 1fr; }
+  .defaults { grid-template-columns: 1fr; }
+  .nav { flex-wrap: wrap; }
+  .nav-btn { width: auto; }
+  .docs-table .table-wrap { overflow: visible; }
+  .docs-table table, .docs-table tbody, .docs-table tr, .docs-table td { display: block; width: 100%; min-width: 0; }
+  .docs-table thead { display: none; }
+  .docs-table tr {
+    border-bottom: 1px solid var(--line);
+    padding: 12px;
+    background: #fff;
+  }
+  .docs-table td {
+    border: 0;
+    padding: 5px 0;
+  }
+  .docs-table td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+  }
+  .docs-table td:first-child::before { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="nav">
+    <div class="brand">
+      <b>Gerador XML Produtos</b>
+      <span>Sistema local da loja</span>
+    </div>
+    <button class="nav-btn active" data-screen="home"><span class="nav-icon">01</span>Início</button>
+    <button class="nav-btn" data-action="open-editor"><span class="nav-icon">02</span>Novo Documento</button>
+    <button class="nav-btn" data-screen="documents"><span class="nav-icon">03</span>Documentos Criados</button>
+    <div class="nav-footer">
+      <button id="openConfig">Modelo do XML</button>
+      <span id="storageStatus">Salvamento local ativo</span>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="top">
+      <div>
+        <h1 id="pageTitle">Início</h1>
+      </div>
+      <div class="top-actions">
+        <button class="soft" id="newDocTop">Novo documento</button>
+        <button id="docsTop">Ver documentos</button>
+      </div>
+    </header>
+
+    <section class="screen active" id="homeScreen">
+      <div class="home-grid">
+        <div class="hero">
+          <div>
+            <h2>Controle seus XMLs de importação sem refazer serviço.</h2>
+            <p>Crie documentos, cole listas grandes de produtos, gere XML, salve histórico e volte depois para conferir, duplicar ou baixar de novo.</p>
+          </div>
+          <div class="quick-actions">
+            <button class="action-card primary" id="homeNewDoc">
+              <b>Novo Documento</b>
+              <span>Começar uma nova lista de produtos para gerar XML.</span>
+            </button>
+            <button class="action-card" id="homeDocs">
+              <b>Documentos Criados</b>
+              <span>Verificar documentos salvos, abrir, duplicar, baixar XML ou excluir.</span>
+            </button>
+          </div>
+          <div class="stats">
+            <div class="stat"><b id="statDocs">0</b><span>documentos</span></div>
+            <div class="stat"><b id="statProducts">0</b><span>produtos cadastrados</span></div>
+            <div class="stat"><b id="statXml">0</b><span>XMLs gerados</span></div>
+            <div class="stat"><b id="statValue">R$ 0,00</b><span>valor total</span></div>
+          </div>
+        </div>
+
+        <aside class="panel">
+          <div class="panel-head">
+            <h2>Últimos documentos</h2>
+            <button class="small" data-screen="documents">Ver todos</button>
+          </div>
+          <div class="panel-body">
+            <div class="recent-list" id="recentDocs"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="screen" id="editorScreen">
+      <div class="doc-header">
+        <div class="field">
+          <label for="docTitle">Nome do documento</label>
+          <input id="docTitle" placeholder="Ex: Produtos nota sem fiscal 24/06">
+        </div>
+        <div class="field">
+          <label for="docDate">Data</label>
+          <input id="docDate" type="date">
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <span class="badge warn" id="docStatusBadge">Rascunho</span>
+        </div>
+        <div class="tools">
+          <button class="primary" id="saveDocBtn">Salvar</button>
+        </div>
+      </div>
+
+      <div class="editor-layout">
+        <aside class="panel">
+          <section class="section">
+            <h2>1. Cole a lista de produtos</h2>
+            <textarea id="rawInput" spellcheck="false" placeholder="Aceita exemplos como:
+7891234567890|RAÇÃO PREMIUM 15KG|199,90
+SHAMPOO PET 500ML;19,90
+AREIA HIGIÊNICA 4KG 29,90"></textarea>
+            <p class="hint">Formatos aceitos: código|nome|preço, nome;preço, planilha copiada do Excel ou uma linha por produto.</p>
+          </section>
+
+          <section class="section">
+            <h2>2. Padrões para completar</h2>
+            <div class="default-grid">
+              <div class="defaults">
+                <label for="defaultUnit">Unidade</label>
+                <select id="defaultUnit">
+                  <option value="UN">UN - Unidade</option>
+                  <option value="KG">KG - Quilo</option>
+                  <option value="SC">SC - Saco</option>
+                  <option value="CX">CX - Caixa</option>
+                  <option value="PC">PC - Pacote</option>
+                </select>
+              </div>
+              <div class="defaults">
+                <label for="defaultNcm">NCM / NF-e</label>
+                <input id="defaultNcm" value="2309.90.10" placeholder="Ex: 2309.90.10">
+              </div>
+              <div class="defaults">
+                <label for="defaultDate">Lançamento</label>
+                <input id="defaultDate" type="date">
+              </div>
+              <div class="defaults">
+                <label for="defaultSituation">Situação</label>
+                <select id="defaultSituation">
+                  <option value="A">A - Ativo</option>
+                  <option value="I">I - Inativo</option>
+                </select>
+              </div>
+              <div class="defaults">
+                <label for="startCode">Código inicial</label>
+                <input id="startCode" type="number" min="1" value="900000">
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>3. Ações do documento</h2>
+            <div class="actions-grid">
+              <button class="primary" id="parseBtn">Processar texto</button>
+              <button id="addRowBtn">Adicionar linha</button>
+              <button class="primary" id="generateBtn">Gerar XML</button>
+              <button id="downloadBtn">Baixar XML</button>
+              <button id="copyBtn">Copiar XML</button>
+              <button id="exportCsvBtn">Exportar tabela</button>
+              <button id="duplicateCurrentBtn">Duplicar doc.</button>
+              <button class="danger" id="clearBtn">Limpar tabela</button>
+            </div>
+            <input id="csvFile" type="file" accept=".csv,text/csv" hidden>
+            <button style="margin-top:10px;width:100%" id="importCsvBtn">Importar CSV para este documento</button>
+            <p class="hint">Tudo é salvo automaticamente no histórico de documentos deste computador.</p>
+          </section>
+        </aside>
+
+        <div>
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Produtos do documento</h2>
+              <div class="tools">
+                <input id="tableSearch" type="search" placeholder="Buscar na tabela">
+                <span id="productCount">0 produtos</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="row-number">#</th>
+                    <th style="width:120px">Código</th>
+                    <th>Nome</th>
+                    <th style="width:120px">Preço</th>
+                    <th style="width:90px">Unidade</th>
+                    <th style="width:130px">NCM / NF-e</th>
+                    <th style="width:145px">Lançamento</th>
+                    <th style="width:85px">Situação</th>
+                    <th style="width:70px">Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody">
+                  <tr><td class="empty" colspan="9">Crie ou abra um documento.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel preview">
+            <div class="panel-head">
+              <h2>Pré-visualização do XML</h2>
+              <span id="xmlStatus" class="badge warn">XML ainda não gerado</span>
+            </div>
+            <pre id="xmlPreview">&lt;!-- O XML aparecerá aqui --&gt;</pre>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="documentsScreen">
+      <div class="documents-toolbar">
+        <input id="docSearch" type="search" placeholder="Buscar documento por nome, data ou status">
+        <select id="docFilter">
+          <option value="">Todos status</option>
+          <option value="rascunho">Rascunhos</option>
+          <option value="xml-gerado">XML gerado</option>
+        </select>
+        <button class="primary" id="documentsNewDoc">Novo documento</button>
+        <button id="backupBtn">Exportar backup</button>
+        <button id="restoreBtn">Importar backup</button>
+        <input id="backupFile" type="file" accept=".json,application/json" hidden>
+      </div>
+
+      <section class="panel docs-table">
+        <div class="panel-head">
+          <h2>Documentos criados</h2>
+          <span id="docsCount">0 documentos</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Documento</th>
+                <th style="width:130px">Status</th>
+                <th style="width:120px">Produtos</th>
+                <th style="width:130px">Valor total</th>
+                <th style="width:150px">Atualizado</th>
+                <th style="width:360px">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="docsTbody">
+              <tr><td class="empty" colspan="6">Nenhum documento criado ainda.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="configModal" role="dialog" aria-modal="true" aria-labelledby="configTitle">
+  <div class="dialog">
+    <div class="dialog-head">
+      <h2 id="configTitle">Modelo do XML</h2>
+      <div class="tools">
+        <button id="resetTemplate">Restaurar padrão</button>
+        <button class="primary" id="saveTemplate">Salvar modelo</button>
+        <button id="closeConfig">Fechar</button>
+      </div>
+    </div>
+    <div class="dialog-body">
+      <p class="hint" style="margin-top:0">Quando tiver um XML aceito pelo sistema, ajuste este modelo para ficar igual.</p>
+      <textarea class="template" id="templateInput" spellcheck="false"></textarea>
+      <div class="template-help">
+        <div><code>{{codigo}}</code> código do produto</div>
+        <div><code>{{nome}}</code> nome do produto</div>
+        <div><code>{{preco}}</code> preço com ponto decimal</div>
+        <div><code>{{preco_br}}</code> preço com vírgula</div>
+        <div><code>{{unidade}}</code> unidade</div>
+        <div><code>{{ncm}}</code> código NCM / NF-e</div>
+        <div><code>{{data}}</code> data em AAAA-MM-DD</div>
+        <div><code>{{data_br}}</code> data em DD/MM/AAAA</div>
+        <div><code>{{situacao}}</code> A ou I</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Salvo</div>
+
+<script>
+const DEFAULT_TEMPLATE = `<produtos>
+{{produtos}}
+</produtos>`;
+
+const DEFAULT_PRODUCT_TEMPLATE = `  <produto>
+    <codigo>{{codigo}}</codigo>
+    <nome>{{nome}}</nome>
+    <preco>{{preco}}</preco>
+    <unidade>{{unidade}}</unidade>
+    <ncm>{{ncm}}</ncm>
+    <data_lancamento>{{data}}</data_lancamento>
+    <situacao>{{situacao}}</situacao>
+  </produto>`;
+
+const STORAGE_DOCS = 'xmlGeneratorDocuments.v2';
+const STORAGE_ACTIVE = 'xmlGeneratorActiveDocumentId.v2';
+const STORAGE_TEMPLATE = 'xmlTemplate';
+const STORAGE_PRODUCT_TEMPLATE = 'productTemplate';
+
+const state = {
+  screen: 'home',
+  documents: [],
+  activeId: null,
+  template: localStorage.getItem(STORAGE_TEMPLATE) || DEFAULT_TEMPLATE,
+  productTemplate: localStorage.getItem(STORAGE_PRODUCT_TEMPLATE) || DEFAULT_PRODUCT_TEMPLATE
+};
+
+const $ = (id) => document.getElementById(id);
+const tbody = $('tbody');
+const docsTbody = $('docsTbody');
+
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function nowISO() {
+  return new Date().toISOString();
+}
+
+function uid() {
+  return 'doc-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+}
+
+function currentDoc() {
+  return state.documents.find(doc => doc.id === state.activeId) || null;
+}
+
+function defaultDoc() {
+  const date = todayISO();
+  return {
+    id: uid(),
+    title: 'Documento ' + toBRDate(date),
+    date,
+    createdAt: nowISO(),
+    updatedAt: nowISO(),
+    status: 'rascunho',
+    rawInput: '',
+    products: [],
+    xml: '',
+    defaults: {
+      unit: 'UN',
+      ncm: '2309.90.10',
+      date,
+      situation: 'A',
+      startCode: '900000'
+    }
+  };
+}
+
+function migrateOldDraft() {
+  if (localStorage.getItem(STORAGE_DOCS)) return;
+  const oldDraft = localStorage.getItem('xmlGeneratorDraft');
+  if (!oldDraft) return;
+  try {
+    const draft = JSON.parse(oldDraft);
+    if (!draft.products || !draft.products.length) return;
+    const doc = defaultDoc();
+    doc.title = 'Documento antigo importado';
+    doc.rawInput = draft.rawInput || '';
+    doc.products = draft.products || [];
+    doc.xml = draft.xml || '';
+    doc.status = doc.xml ? 'xml-gerado' : 'rascunho';
+    doc.defaults = {
+      unit: draft.defaultUnit || 'UN',
+      ncm: draft.defaultNcm || '2309.90.10',
+      date: draft.defaultDate || todayISO(),
+      situation: draft.defaultSituation || 'A',
+      startCode: draft.startCode || '900000'
+    };
+    state.documents = [doc];
+    state.activeId = doc.id;
+    saveAll();
+  } catch {
+  }
+}
+
+function loadAll() {
+  migrateOldDraft();
+  try {
+    state.documents = JSON.parse(localStorage.getItem(STORAGE_DOCS) || '[]');
+  } catch {
+    state.documents = [];
+  }
+  state.activeId = localStorage.getItem(STORAGE_ACTIVE) || (state.documents[0] && state.documents[0].id) || null;
+  if (state.activeId && !currentDoc()) {
+    state.activeId = state.documents[0] ? state.documents[0].id : null;
+  }
+}
+
+function saveAll() {
+  localStorage.setItem(STORAGE_DOCS, JSON.stringify(state.documents));
+  if (state.activeId) localStorage.setItem(STORAGE_ACTIVE, state.activeId);
+  localStorage.setItem(STORAGE_TEMPLATE, state.template);
+  localStorage.setItem(STORAGE_PRODUCT_TEMPLATE, state.productTemplate);
+  $('storageStatus').textContent = 'Salvo às ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function toast(text) {
+  const el = $('toast');
+  el.textContent = text;
+  el.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+function escapeXml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+function normalizePrice(value) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return '';
+  const clean = raw.replace(/[^\d,.-]/g, '');
+  const dot = clean.includes('.') && clean.includes(',')
+    ? clean.replace(/\./g, '').replace(',', '.')
+    : clean.replace(',', '.');
+  const num = Number.parseFloat(dot);
+  return Number.isFinite(num) ? num.toFixed(2) : raw;
+}
+
+function priceNumber(value) {
+  const n = Number.parseFloat(normalizePrice(value));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function priceBR(value) {
+  return priceNumber(value).toFixed(2).replace('.', ',');
+}
+
+function moneyBR(value) {
+  return 'R$ ' + Number(value || 0).toFixed(2).replace('.', ',');
+}
+
+function toBRDate(value) {
+  if (!value) return '';
+  const parts = String(value).split('-');
+  return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : value;
+}
+
+function brToISO(value) {
+  const raw = String(value || '').trim();
+  const m = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : raw;
+}
+
+function formatDateTime(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function sanitizeFileName(value) {
+  return String(value || 'documento').replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim();
+}
+
+function docTotal(doc) {
+  return (doc.products || []).reduce((sum, p) => sum + priceNumber(p.preco), 0);
+}
+
+function showScreen(screen) {
+  state.screen = screen;
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  $(screen + 'Screen').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.screen === screen || (screen === 'editor' && btn.dataset.action === 'open-editor')));
+  $('pageTitle').textContent = screen === 'home' ? 'Início' : screen === 'editor' ? 'Novo Documento' : 'Documentos Criados';
+  render();
+}
+
+function createDocument() {
+  const doc = defaultDoc();
+  state.documents.unshift(doc);
+  state.activeId = doc.id;
+  saveAll();
+  showScreen('editor');
+  toast('Documento criado');
+}
+
+function openEditorOrCreate() {
+  if (!currentDoc()) createDocument();
+  else showScreen('editor');
+}
+
+function openDocument(id) {
+  state.activeId = id;
+  saveAll();
+  showScreen('editor');
+}
+
+function updateCurrentFromHeader() {
+  const doc = currentDoc();
+  if (!doc) return;
+  doc.title = $('docTitle').value.trim() || doc.title;
+  doc.date = $('docDate').value || doc.date || todayISO();
+  doc.updatedAt = nowISO();
+  saveAll();
+}
+
+function readDefaultsFromForm() {
+  const doc = currentDoc();
+  if (!doc) return;
+  doc.defaults = {
+    unit: $('defaultUnit').value,
+    ncm: $('defaultNcm').value.trim(),
+    date: $('defaultDate').value || todayISO(),
+    situation: $('defaultSituation').value,
+    startCode: $('startCode').value || '900000'
+  };
+  doc.rawInput = $('rawInput').value;
+  doc.updatedAt = nowISO();
+  saveAll();
+}
+
+function applyDocToForm() {
+  const doc = currentDoc();
+  if (!doc) {
+    $('docTitle').value = '';
+    $('docDate').value = todayISO();
+    $('rawInput').value = '';
+    return;
+  }
+  $('docTitle').value = doc.title || '';
+  $('docDate').value = doc.date || todayISO();
+  $('rawInput').value = doc.rawInput || '';
+  $('defaultUnit').value = doc.defaults?.unit || 'UN';
+  $('defaultNcm').value = doc.defaults?.ncm || '2309.90.10';
+  $('defaultDate').value = doc.defaults?.date || todayISO();
+  $('defaultSituation').value = doc.defaults?.situation || 'A';
+  $('startCode').value = doc.defaults?.startCode || '900000';
+  updateDocStatusBadge(doc);
+}
+
+function updateDocStatusBadge(doc) {
+  const badge = $('docStatusBadge');
+  const generated = doc && doc.status === 'xml-gerado';
+  badge.textContent = generated ? 'XML gerado' : 'Rascunho';
+  badge.className = 'badge ' + (generated ? 'ok' : 'warn');
+}
+
+function splitLine(line) {
+  const trimmed = line.trim();
+  if (!trimmed) return [];
+  const separators = ['|', ';', '\t'];
+  for (const sep of separators) {
+    if (trimmed.includes(sep)) {
+      return trimmed.split(sep).map(part => part.trim()).filter(Boolean);
+    }
+  }
+  const match = trimmed.match(/^(.*?)[\s-]+((?:R\$)?\s*\d{1,6}(?:[.,]\d{2})?)$/i);
+  return match ? [match[1].trim(), match[2].trim()] : [trimmed];
+}
+
+function looksLikeCode(value) {
+  return /^\d{4,14}$/.test(String(value || '').replace(/\D/g, ''));
+}
+
+function looksLikePrice(value) {
+  return /(?:^|[^\d])(?:R\$)?\s*\d{1,6}(?:[.,]\d{2})(?:$|[^\d])/.test(String(value || ''));
+}
+
+function nextCode(defaults, index) {
+  const start = Number.parseInt(defaults.startCode || '900000', 10);
+  return String((Number.isFinite(start) ? start : 900000) + index);
+}
+
+function productDefaults(doc, index) {
+  const defaults = doc.defaults || {};
+  return {
+    codigo: nextCode(defaults, index),
+    nome: '',
+    preco: '',
+    unidade: defaults.unit || 'UN',
+    ncm: defaults.ncm || '2309.90.10',
+    data: defaults.date || todayISO(),
+    situacao: defaults.situation || 'A'
+  };
+}
+
+function parseLine(line, doc, index) {
+  const parts = splitLine(line);
+  const product = productDefaults(doc, index);
+  if (!parts.length) return null;
+
+  const pricePart = [...parts].reverse().find(looksLikePrice);
+  const codePart = parts.find(part => part !== pricePart && looksLikeCode(part));
+
+  product._autoCode = !codePart;
+  if (codePart) product.codigo = codePart.replace(/\D/g, '');
+  if (pricePart) product.preco = normalizePrice(pricePart);
+
+  const nameParts = parts.filter(part => part !== codePart && part !== pricePart);
+  product.nome = nameParts.join(' ').replace(/\s+/g, ' ').trim();
+
+  if (!product.nome && parts.length === 1) product.nome = parts[0];
+  if (!product.preco && parts.length >= 2) product.preco = normalizePrice(parts[parts.length - 1]);
+  if (!product.nome && parts.length >= 2) product.nome = parts.slice(0, -1).join(' ');
+
+  return product.nome ? product : null;
+}
+
+function parseRawText() {
+  const doc = currentDoc();
+  if (!doc) return createDocument();
+  readDefaultsFromForm();
+  const lines = $('rawInput').value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const parsed = [];
+  let autoCodeIndex = 0;
+  lines.forEach(line => {
+    const product = parseLine(line, doc, autoCodeIndex);
+    if (product) {
+      if (product._autoCode) autoCodeIndex += 1;
+      delete product._autoCode;
+      parsed.push(product);
+    }
+  });
+  doc.products = parsed;
+  doc.xml = '';
+  doc.status = 'rascunho';
+  doc.updatedAt = nowISO();
+  saveAll();
+  render();
+  toast(`${parsed.length} produtos processados`);
+}
+
+function addRow() {
+  const doc = currentDoc();
+  if (!doc) return createDocument();
+  readDefaultsFromForm();
+  doc.products.push(productDefaults(doc, doc.products.length));
+  doc.status = 'rascunho';
+  doc.xml = '';
+  doc.updatedAt = nowISO();
+  saveAll();
+  renderProducts();
+  toast('Linha adicionada');
+}
+
+function removeRow(index) {
+  const doc = currentDoc();
+  if (!doc) return;
+  doc.products.splice(index, 1);
+  doc.status = 'rascunho';
+  doc.xml = '';
+  doc.updatedAt = nowISO();
+  saveAll();
+  render();
+}
+
+function updateProductFromInput(input) {
+  const doc = currentDoc();
+  const row = input.closest('tr');
+  if (!doc || !row) return;
+  const index = Number.parseInt(row.dataset.index, 10);
+  const field = input.dataset.field;
+  if (!doc.products[index] || !field) return;
+  doc.products[index][field] = field === 'preco' ? normalizePrice(input.value) : input.value.trim();
+  doc.status = 'rascunho';
+  doc.xml = '';
+  doc.updatedAt = nowISO();
+  saveAll();
+  renderPreview();
+  renderHome();
+}
+
+function fillTemplate(template, product) {
+  const data = {
+    codigo: escapeXml(product.codigo),
+    nome: escapeXml(product.nome),
+    preco: escapeXml(normalizePrice(product.preco)),
+    preco_br: escapeXml(priceBR(product.preco)),
+    unidade: escapeXml(product.unidade),
+    ncm: escapeXml(product.ncm),
+    data: escapeXml(product.data),
+    data_br: escapeXml(toBRDate(product.data)),
+    situacao: escapeXml(product.situacao)
+  };
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] ?? '');
+}
+
+function buildXml(doc) {
+  const productXml = (doc.products || []).map(p => fillTemplate(state.productTemplate, p)).join('\n');
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' + state.template.replace('{{produtos}}', productXml);
+}
+
+function generateXml() {
+  const doc = currentDoc();
+  if (!doc) return createDocument();
+  updateCurrentFromHeader();
+  readDefaultsFromForm();
+  if (!doc.products.length) {
+    toast('Nenhum produto na tabela');
+    return;
+  }
+  doc.xml = buildXml(doc);
+  doc.status = 'xml-gerado';
+  doc.updatedAt = nowISO();
+  saveAll();
+  render();
+  toast('XML gerado e documento salvo');
+}
+
+function download(filename, content, type = 'application/xml;charset=utf-8') {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function downloadXml(doc = currentDoc()) {
+  if (!doc) return;
+  const xml = doc.xml || buildXml(doc);
+  download(`${sanitizeFileName(doc.title)}.xml`, xml);
+  toast('XML baixado');
+}
+
+async function copyXml() {
+  const doc = currentDoc();
+  if (!doc) return;
+  const xml = doc.xml || buildXml(doc);
+  await navigator.clipboard.writeText(xml);
+  toast('XML copiado');
+}
+
+function exportCsv(doc = currentDoc()) {
+  if (!doc) return;
+  const header = ['codigo','nome','preco','unidade','ncm','data_lancamento','situacao'];
+  const lines = [header.join(';')].concat((doc.products || []).map(p => [
+    p.codigo, p.nome, priceBR(p.preco), p.unidade, p.ncm, toBRDate(p.data), p.situacao
+  ].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';')));
+  download(`${sanitizeFileName(doc.title)}.csv`, '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8');
+}
+
+function splitCsvLine(line) {
+  const sep = line.includes(';') ? ';' : ',';
+  const result = [];
+  let current = '';
+  let quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (quoted && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (ch === sep && !quoted) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function importCsv(file) {
+  const doc = currentDoc();
+  if (!doc) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = String(reader.result || '');
+    const lines = text.replace(/^\ufeff/, '').split(/\r?\n/).filter(Boolean);
+    const imported = [];
+    lines.forEach((line, index) => {
+      if (index === 0 && /codigo|nome|preco/i.test(line)) return;
+      const parts = splitCsvLine(line);
+      if (!parts.length) return;
+      imported.push({
+        ...productDefaults(doc, imported.length),
+        codigo: parts[0] || nextCode(doc.defaults, imported.length),
+        nome: parts[1] || '',
+        preco: normalizePrice(parts[2] || ''),
+        unidade: parts[3] || doc.defaults.unit || 'UN',
+        ncm: parts[4] || doc.defaults.ncm || '2309.90.10',
+        data: brToISO(parts[5]) || doc.defaults.date || todayISO(),
+        situacao: parts[6] || doc.defaults.situation || 'A'
+      });
+    });
+    doc.products = imported;
+    doc.xml = '';
+    doc.status = 'rascunho';
+    doc.updatedAt = nowISO();
+    saveAll();
+    render();
+    toast(`${imported.length} produtos importados`);
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function duplicateDocument(id = state.activeId) {
+  const source = state.documents.find(doc => doc.id === id);
+  if (!source) return;
+  const copy = JSON.parse(JSON.stringify(source));
+  copy.id = uid();
+  copy.title = source.title + ' (cópia)';
+  copy.createdAt = nowISO();
+  copy.updatedAt = nowISO();
+  copy.status = 'rascunho';
+  state.documents.unshift(copy);
+  state.activeId = copy.id;
+  saveAll();
+  showScreen('editor');
+  toast('Documento duplicado');
+}
+
+function deleteDocument(id) {
+  const doc = state.documents.find(item => item.id === id);
+  if (!doc) return;
+  if (!confirm(`Excluir "${doc.title}"?`)) return;
+  state.documents = state.documents.filter(item => item.id !== id);
+  if (state.activeId === id) state.activeId = state.documents[0] ? state.documents[0].id : null;
+  saveAll();
+  render();
+  toast('Documento excluído');
+}
+
+function clearCurrentTable() {
+  const doc = currentDoc();
+  if (!doc) return;
+  if (!confirm('Limpar todos os produtos deste documento?')) return;
+  doc.products = [];
+  doc.xml = '';
+  doc.status = 'rascunho';
+  doc.updatedAt = nowISO();
+  saveAll();
+  render();
+}
+
+function exportBackup() {
+  const backup = {
+    exportedAt: nowISO(),
+    app: 'Gerador XML Produtos',
+    documents: state.documents,
+    template: state.template,
+    productTemplate: state.productTemplate
+  };
+  download(`backup-gerador-xml-${todayISO()}.json`, JSON.stringify(backup, null, 2), 'application/json;charset=utf-8');
+  toast('Backup exportado');
+}
+
+function importBackup(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const backup = JSON.parse(String(reader.result || '{}'));
+      if (!Array.isArray(backup.documents)) throw new Error('Arquivo sem documentos.');
+      if (!confirm('Importar backup e substituir os documentos atuais?')) return;
+      state.documents = backup.documents;
+      state.template = backup.template || state.template;
+      state.productTemplate = backup.productTemplate || state.productTemplate;
+      state.activeId = state.documents[0] ? state.documents[0].id : null;
+      saveAll();
+      render();
+      toast('Backup importado');
+    } catch (error) {
+      alert('Backup inválido: ' + error.message);
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function render() {
+  applyDocToForm();
+  renderHome();
+  renderProducts();
+  renderPreview();
+  renderDocuments();
+}
+
+function renderHome() {
+  const docs = state.documents;
+  $('statDocs').textContent = docs.length;
+  $('statProducts').textContent = docs.reduce((sum, doc) => sum + (doc.products || []).length, 0);
+  $('statXml').textContent = docs.filter(doc => doc.status === 'xml-gerado').length;
+  $('statValue').textContent = moneyBR(docs.reduce((sum, doc) => sum + docTotal(doc), 0));
+
+  const recent = docs.slice(0, 5);
+  $('recentDocs').innerHTML = recent.length ? recent.map(doc => `
+    <div class="doc-card">
+      <h3>${escapeHtml(doc.title)}</h3>
+      <div class="meta">
+        <span>${(doc.products || []).length} produtos</span>
+        <span>${moneyBR(docTotal(doc))}</span>
+        <span>${formatDateTime(doc.updatedAt)}</span>
+      </div>
+      <div class="tools">
+        <span class="badge ${doc.status === 'xml-gerado' ? 'ok' : 'warn'}">${doc.status === 'xml-gerado' ? 'XML gerado' : 'Rascunho'}</span>
+        <button class="small" data-doc-open="${doc.id}">Abrir</button>
+      </div>
+    </div>
+  `).join('') : '<div class="empty">Nenhum documento ainda. Clique em Novo Documento para começar.</div>';
+}
+
+function renderProducts() {
+  const doc = currentDoc();
+  if (!doc) {
+    $('productCount').textContent = '0 produtos';
+    tbody.innerHTML = '<tr><td class="empty" colspan="9">Crie ou abra um documento.</td></tr>';
+    return;
+  }
+  const query = $('tableSearch').value.trim().toLowerCase();
+  const products = doc.products || [];
+  $('productCount').textContent = `${products.length} produtos`;
+  if (!products.length) {
+    tbody.innerHTML = '<tr><td class="empty" colspan="9">Cole uma lista e clique em Processar texto.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = products.map((p, index) => {
+    const haystack = `${p.codigo} ${p.nome} ${p.preco} ${p.unidade} ${p.ncm} ${p.data} ${p.situacao}`.toLowerCase();
+    const hidden = query && !haystack.includes(query) ? ' hidden' : '';
+    return `<tr data-index="${index}"${hidden}>
+      <td class="row-number">${index + 1}</td>
+      <td><input data-field="codigo" value="${escapeHtml(p.codigo)}"></td>
+      <td><input data-field="nome" value="${escapeHtml(p.nome)}"></td>
+      <td><input data-field="preco" value="${escapeHtml(priceBR(p.preco))}"></td>
+      <td>
+        <select data-field="unidade">
+          ${['UN','KG','SC','CX','PC'].map(v => `<option value="${v}" ${p.unidade === v ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+      </td>
+      <td><input data-field="ncm" value="${escapeHtml(p.ncm)}"></td>
+      <td><input data-field="data" type="date" value="${escapeHtml(p.data)}"></td>
+      <td>
+        <select data-field="situacao">
+          <option value="A" ${p.situacao === 'A' ? 'selected' : ''}>A</option>
+          <option value="I" ${p.situacao === 'I' ? 'selected' : ''}>I</option>
+        </select>
+      </td>
+      <td><button class="small danger" data-action="remove-product">Excluir</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderPreview() {
+  const doc = currentDoc();
+  if (!doc) {
+    $('xmlPreview').textContent = '<!-- O XML aparecerá aqui -->';
+    $('xmlStatus').textContent = 'XML ainda não gerado';
+    $('xmlStatus').className = 'badge warn';
+    return;
+  }
+  $('xmlPreview').textContent = doc.xml || '<!-- Clique em Gerar XML para pré-visualizar -->';
+  $('xmlStatus').textContent = doc.status === 'xml-gerado' ? 'XML pronto' : 'XML ainda não gerado';
+  $('xmlStatus').className = 'badge ' + (doc.status === 'xml-gerado' ? 'ok' : 'warn');
+  updateDocStatusBadge(doc);
+}
+
+function renderDocuments() {
+  const query = $('docSearch').value.trim().toLowerCase();
+  const filter = $('docFilter').value;
+  const docs = state.documents.filter(doc => {
+    const matchesText = !query || `${doc.title} ${doc.date} ${doc.status}`.toLowerCase().includes(query);
+    const matchesStatus = !filter || doc.status === filter;
+    return matchesText && matchesStatus;
+  });
+  $('docsCount').textContent = `${docs.length} documentos`;
+  if (!docs.length) {
+    docsTbody.innerHTML = '<tr><td class="empty" colspan="6">Nenhum documento encontrado.</td></tr>';
+    return;
+  }
+  docsTbody.innerHTML = docs.map(doc => `
+    <tr>
+      <td data-label="Documento">
+        <b>${escapeHtml(doc.title)}</b>
+        <div class="meta"><span>Criado em ${formatDateTime(doc.createdAt)}</span><span>Data ${toBRDate(doc.date)}</span></div>
+      </td>
+      <td data-label="Status"><span class="badge ${doc.status === 'xml-gerado' ? 'ok' : 'warn'}">${doc.status === 'xml-gerado' ? 'XML gerado' : 'Rascunho'}</span></td>
+      <td data-label="Produtos">${(doc.products || []).length}</td>
+      <td data-label="Valor total" class="money">${moneyBR(docTotal(doc))}</td>
+      <td data-label="Atualizado">${formatDateTime(doc.updatedAt)}</td>
+      <td data-label="Ações">
+        <div class="tools">
+          <button class="small" data-doc-open="${doc.id}">Abrir</button>
+          <button class="small" data-doc-duplicate="${doc.id}">Duplicar</button>
+          <button class="small" data-doc-xml="${doc.id}">Baixar XML</button>
+          <button class="small" data-doc-csv="${doc.id}">CSV</button>
+          <button class="small danger" data-doc-delete="${doc.id}">Excluir</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openConfig() {
+  $('templateInput').value = state.template + '\n\n<!-- PRODUTO_TEMPLATE -->\n' + state.productTemplate;
+  $('configModal').classList.add('open');
+}
+
+function saveTemplate() {
+  const value = $('templateInput').value;
+  const marker = '<!-- PRODUTO_TEMPLATE -->';
+  const parts = value.split(marker);
+  state.template = (parts[0] || DEFAULT_TEMPLATE).trim();
+  state.productTemplate = (parts[1] || DEFAULT_PRODUCT_TEMPLATE).trim();
+  saveAll();
+  $('configModal').classList.remove('open');
+  const doc = currentDoc();
+  if (doc) {
+    doc.xml = '';
+    doc.status = 'rascunho';
+    saveAll();
+  }
+  render();
+  toast('Modelo salvo');
+}
+
+document.querySelectorAll('[data-screen]').forEach(el => {
+  el.addEventListener('click', () => showScreen(el.dataset.screen));
+});
+document.querySelectorAll('[data-action="open-editor"]').forEach(el => {
+  el.addEventListener('click', openEditorOrCreate);
+});
+
+$('newDocTop').addEventListener('click', createDocument);
+$('docsTop').addEventListener('click', () => showScreen('documents'));
+$('homeNewDoc').addEventListener('click', createDocument);
+$('homeDocs').addEventListener('click', () => showScreen('documents'));
+$('documentsNewDoc').addEventListener('click', createDocument);
+$('parseBtn').addEventListener('click', parseRawText);
+$('addRowBtn').addEventListener('click', addRow);
+$('generateBtn').addEventListener('click', generateXml);
+$('downloadBtn').addEventListener('click', () => downloadXml());
+$('copyBtn').addEventListener('click', copyXml);
+$('exportCsvBtn').addEventListener('click', () => exportCsv());
+$('clearBtn').addEventListener('click', clearCurrentTable);
+$('duplicateCurrentBtn').addEventListener('click', () => duplicateDocument());
+$('importCsvBtn').addEventListener('click', () => $('csvFile').click());
+$('csvFile').addEventListener('change', event => {
+  const file = event.target.files[0];
+  if (file) importCsv(file);
+  event.target.value = '';
+});
+$('backupBtn').addEventListener('click', exportBackup);
+$('restoreBtn').addEventListener('click', () => $('backupFile').click());
+$('backupFile').addEventListener('change', event => {
+  const file = event.target.files[0];
+  if (file) importBackup(file);
+  event.target.value = '';
+});
+$('docTitle').addEventListener('input', () => {
+  const doc = currentDoc();
+  if (!doc) return;
+  doc.title = $('docTitle').value;
+  doc.updatedAt = nowISO();
+  saveAll();
+  renderHome();
+  renderDocuments();
+});
+$('docDate').addEventListener('change', updateCurrentFromHeader);
+['rawInput','defaultUnit','defaultNcm','defaultDate','defaultSituation','startCode'].forEach(id => {
+  $(id).addEventListener('input', readDefaultsFromForm);
+  $(id).addEventListener('change', readDefaultsFromForm);
+});
+$('tableSearch').addEventListener('input', renderProducts);
+$('docSearch').addEventListener('input', renderDocuments);
+$('docFilter').addEventListener('change', renderDocuments);
+$('saveDocBtn').addEventListener('click', () => {
+  updateCurrentFromHeader();
+  readDefaultsFromForm();
+  render();
+  toast('Documento salvo');
+});
+$('tbody').addEventListener('input', event => {
+  if (event.target.matches('input, select')) updateProductFromInput(event.target);
+});
+$('tbody').addEventListener('change', event => {
+  if (event.target.matches('input, select')) updateProductFromInput(event.target);
+});
+$('tbody').addEventListener('click', event => {
+  if (event.target.dataset.action === 'remove-product') {
+    removeRow(Number.parseInt(event.target.closest('tr').dataset.index, 10));
+  }
+});
+document.body.addEventListener('click', event => {
+  const openId = event.target.dataset.docOpen;
+  const dupId = event.target.dataset.docDuplicate;
+  const xmlId = event.target.dataset.docXml;
+  const csvId = event.target.dataset.docCsv;
+  const deleteId = event.target.dataset.docDelete;
+  if (openId) openDocument(openId);
+  if (dupId) duplicateDocument(dupId);
+  if (xmlId) downloadXml(state.documents.find(doc => doc.id === xmlId));
+  if (csvId) exportCsv(state.documents.find(doc => doc.id === csvId));
+  if (deleteId) deleteDocument(deleteId);
+});
+$('openConfig').addEventListener('click', openConfig);
+$('closeConfig').addEventListener('click', () => $('configModal').classList.remove('open'));
+$('saveTemplate').addEventListener('click', saveTemplate);
+$('resetTemplate').addEventListener('click', () => {
+  $('templateInput').value = DEFAULT_TEMPLATE + '\n\n<!-- PRODUTO_TEMPLATE -->\n' + DEFAULT_PRODUCT_TEMPLATE;
+});
+
+loadAll();
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+﻿{
+  "app": "Gerador XML Produtos",
+  "version": "1.1.2",
+  "notes": "Versao 1.1.2",
+  "files": [
+    {
+      "name": "gerador_xml_produtos.html",
+      "sha256": "cfe74aefd1850094cfa6c96082a6db924e953b0675c11b7904b5d587b312b500"
+    }
+  ]
+}
