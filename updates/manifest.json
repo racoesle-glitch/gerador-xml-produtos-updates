@@ -1,11 +1,11 @@
 ﻿{
   "app": "Gerador XML Produtos",
-  "version": "1.1.6",
-  "notes": "Versao 1.1.6",
+  "version": "1.1.7",
+  "notes": "Versao 1.1.7 - modelo NFe com dados do fornecedor e campo de tributacao",
   "files": [
     {
       "name": "gerador_xml_produtos.html",
-      "sha256": "4132e29068739fd3acf0b1a3ce52675b4356b02a1cc70ed4d490deb1ee7b969b"
+      "sha256": "0482dbbd556600cc141a28c04db852e262c7769bf54722fe42251f23058f53b3"
     }
   ]
 }
