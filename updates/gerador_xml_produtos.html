@@ -992,8 +992,8 @@ const DEFAULT_PRODUCT_TEMPLATE = `      <det nItem="{{item}}">
 
 const STORAGE_DOCS = 'xmlGeneratorDocuments.v2';
 const STORAGE_ACTIVE = 'xmlGeneratorActiveDocumentId.v2';
-const STORAGE_TEMPLATE = 'xmlTemplate.v3';
-const STORAGE_PRODUCT_TEMPLATE = 'productTemplate.v3';
+const STORAGE_TEMPLATE = 'xmlTemplate.v4';
+const STORAGE_PRODUCT_TEMPLATE = 'productTemplate.v4';
 
 const state = {
   screen: 'home',
@@ -1481,7 +1481,7 @@ function buildXml(doc) {
     data_emissao: nfeDateTime(doc.date),
     valor_total: products.reduce((sum, p) => sum + priceNumber(p.preco || '0.01'), 0).toFixed(2)
   };
-  return '<?xml version="1.0" encoding="UTF-8"?>\n' + state.template.replace(/\{\{(\w+)\}\}/g, (_, key) => docData[key] ?? '');
+  return '<?xml version="1.0" encoding="utf-8"?>\n<!--XML nao fiscal criado para importacao/cadastro de produtos no Softcom. Nao e NF-e autorizada pela SEFAZ.-->\n' + state.template.replace(/\{\{(\w+)\}\}/g, (_, key) => docData[key] ?? '');
 }
 
 function generateXml() {

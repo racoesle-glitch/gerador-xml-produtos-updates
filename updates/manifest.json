@@ -1,11 +1,11 @@
-﻿{
-  "app": "Gerador XML Produtos",
-  "version": "1.1.7",
-  "notes": "Versao 1.1.7 - modelo NFe com dados do fornecedor e campo de tributacao",
-  "files": [
-    {
-      "name": "gerador_xml_produtos.html",
-      "sha256": "0482dbbd556600cc141a28c04db852e262c7769bf54722fe42251f23058f53b3"
-    }
-  ]
+{
+    "app":  "Gerador XML Produtos",
+    "version":  "1.1.8",
+    "notes":  "Versao 1.1.8 - forca modelo nfeProc nao assinado aceito pelo Softcom e limpa modelo antigo salvo",
+    "files":  [
+                  {
+                      "sha256":  "ced865db9695ca39e5c760f03a35f56536d19e520229b0b5b21691e3bfa7796e",
+                      "name":  "gerador_xml_produtos.html"
+                  }
+              ]
 }
