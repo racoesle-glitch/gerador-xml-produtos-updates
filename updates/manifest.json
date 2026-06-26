@@ -1,11 +1,11 @@
-{
-    "app":  "Gerador XML Produtos",
-    "version":  "1.1.8",
-    "notes":  "Versao 1.1.8 - forca modelo nfeProc nao assinado aceito pelo Softcom e limpa modelo antigo salvo",
-    "files":  [
-                  {
-                      "sha256":  "ced865db9695ca39e5c760f03a35f56536d19e520229b0b5b21691e3bfa7796e",
-                      "name":  "gerador_xml_produtos.html"
-                  }
-              ]
+﻿{
+  "app": "LE XML FÃ¡cil",
+  "version": "1.2.1",
+  "notes": "Versao 1.2.1",
+  "files": [
+    {
+      "name": "gerador_xml_produtos.html",
+      "sha256": "38a0cfea5342eff9ebabb32bab68a0b0a42de6f6a395d449b0ecc175230bd8a8"
+    }
+  ]
 }

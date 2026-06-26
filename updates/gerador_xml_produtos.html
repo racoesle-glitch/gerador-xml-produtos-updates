@@ -382,7 +382,7 @@ textarea {
 }
 table {
   width: 100%;
-  min-width: 1080px;
+  min-width: 1200px;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -658,8 +658,9 @@ pre {
             <textarea id="rawInput" spellcheck="false" placeholder="Aceita exemplos como:
 7891234567890|RAÇÃO PREMIUM 15KG|199,90
 SHAMPOO PET 500ML;19,90
-AREIA HIGIÊNICA 4KG 29,90"></textarea>
-            <p class="hint">Formatos aceitos: código|nome|preço, nome;preço, planilha copiada do Excel ou uma linha por produto.</p>
+AREIA HIGIÊNICA 4KG 29,90
+ELIMINADOR SNOUT HERBAL 2L 16,80 7898324019562"></textarea>
+            <p class="hint">Formatos aceitos: codigo|nome|preco, nome;preco, produto preco codigo de barras, planilha copiada do Excel ou uma linha por produto.</p>
           </section>
 
           <section class="section">
@@ -737,6 +738,7 @@ AREIA HIGIÊNICA 4KG 29,90"></textarea>
                   <tr>
                     <th class="row-number">#</th>
                     <th style="width:120px">Código</th>
+                    <th style="width:145px">Cod. barras</th>
                     <th>Nome</th>
                     <th style="width:120px">Preço</th>
                     <th style="width:90px">Unidade</th>
@@ -748,7 +750,7 @@ AREIA HIGIÊNICA 4KG 29,90"></textarea>
                   </tr>
                 </thead>
                 <tbody id="tbody">
-                  <tr><td class="empty" colspan="10">Crie ou abra um documento.</td></tr>
+                  <tr><td class="empty" colspan="11">Crie ou abra um documento.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -821,6 +823,7 @@ AREIA HIGIÊNICA 4KG 29,90"></textarea>
       <textarea class="template" id="templateInput" spellcheck="false"></textarea>
       <div class="template-help">
         <div><code>{{codigo}}</code> código do produto</div>
+        <div><code>{{codigo_barras}}</code> codigo de barras/EAN ou SEM GTIN</div>
         <div><code>{{nome}}</code> nome do produto</div>
         <div><code>{{preco}}</code> preço com ponto decimal</div>
         <div><code>{{preco_br}}</code> preço com vírgula</div>
@@ -960,7 +963,7 @@ const DEFAULT_TEMPLATE = `<nfeProc versao="4.00" xmlns="http://www.portalfiscal.
 const DEFAULT_PRODUCT_TEMPLATE = `      <det nItem="{{item}}">
         <prod>
           <cProd>{{codigo}}</cProd>
-          <cEAN>SEM GTIN</cEAN>
+          <cEAN>{{codigo_barras}}</cEAN>
           <xProd>{{nome}}</xProd>
           <NCM>{{ncm_limpo}}</NCM>
           <CFOP>1102</CFOP>
@@ -968,7 +971,7 @@ const DEFAULT_PRODUCT_TEMPLATE = `      <det nItem="{{item}}">
           <qCom>1.0000</qCom>
           <vUnCom>{{preco_unitario}}</vUnCom>
           <vProd>{{preco}}</vProd>
-          <cEANTrib>SEM GTIN</cEANTrib>
+          <cEANTrib>{{codigo_barras}}</cEANTrib>
           <uTrib>{{unidade}}</uTrib>
           <qTrib>1.0000</qTrib>
           <vUnTrib>{{preco_unitario}}</vUnTrib>
@@ -992,8 +995,8 @@ const DEFAULT_PRODUCT_TEMPLATE = `      <det nItem="{{item}}">
 
 const STORAGE_DOCS = 'xmlGeneratorDocuments.v2';
 const STORAGE_ACTIVE = 'xmlGeneratorActiveDocumentId.v2';
-const STORAGE_TEMPLATE = 'xmlTemplate.v4';
-const STORAGE_PRODUCT_TEMPLATE = 'productTemplate.v4';
+const STORAGE_TEMPLATE = 'xmlTemplate.v5';
+const STORAGE_PRODUCT_TEMPLATE = 'productTemplate.v5';
 
 const state = {
   screen: 'home',
@@ -1331,12 +1334,19 @@ function splitLine(line) {
       return trimmed.split(sep).map(part => part.trim()).filter(Boolean);
     }
   }
+  const withBarcode = trimmed.match(/^(.*?)\s+((?:R\$)?\s*\d{1,6}(?:[.,]\d{2})?)\s+(\d{8,14})$/i);
+  if (withBarcode) return [withBarcode[1].trim(), withBarcode[2].trim(), withBarcode[3].trim()];
   const match = trimmed.match(/^(.*?)[\s-]+((?:R\$)?\s*\d{1,6}(?:[.,]\d{2})?)$/i);
   return match ? [match[1].trim(), match[2].trim()] : [trimmed];
 }
 
 function looksLikeCode(value) {
   return /^\d{4,14}$/.test(String(value || '').replace(/\D/g, ''));
+}
+
+function looksLikeBarcode(value) {
+  const digits = cleanDigits(value);
+  return digits.length >= 8 && digits.length <= 14;
 }
 
 function looksLikePrice(value) {
@@ -1352,6 +1362,7 @@ function productDefaults(doc, index) {
   const defaults = doc.defaults || {};
   return {
     codigo: nextCode(defaults, index),
+    codigo_barras: 'SEM GTIN',
     nome: '',
     preco: '',
     unidade: defaults.unit || 'UN',
@@ -1368,13 +1379,15 @@ function parseLine(line, doc, index) {
   if (!parts.length) return null;
 
   const pricePart = [...parts].reverse().find(looksLikePrice);
-  const codePart = parts.find(part => part !== pricePart && looksLikeCode(part));
+  const barcodePart = [...parts].reverse().find(part => part !== pricePart && looksLikeBarcode(part));
+  const codePart = parts.find(part => part !== pricePart && part !== barcodePart && looksLikeCode(part));
 
   product._autoCode = !codePart;
   if (codePart) product.codigo = codePart.replace(/\D/g, '');
+  if (barcodePart) product.codigo_barras = cleanDigits(barcodePart);
   if (pricePart) product.preco = normalizePrice(pricePart);
 
-  const nameParts = parts.filter(part => part !== codePart && part !== pricePart);
+  const nameParts = parts.filter(part => part !== codePart && part !== pricePart && part !== barcodePart);
   product.nome = nameParts.join(' ').replace(/\s+/g, ' ').trim();
 
   if (!product.nome && parts.length === 1) product.nome = parts[0];
@@ -1449,9 +1462,11 @@ function updateProductFromInput(input) {
 }
 
 function fillTemplate(template, product, index) {
+  const barcode = looksLikeBarcode(product.codigo_barras) ? cleanDigits(product.codigo_barras) : 'SEM GTIN';
   const data = {
     item: String(index + 1),
     codigo: escapeXml(product.codigo),
+    codigo_barras: escapeXml(barcode),
     nome: escapeXml(product.nome),
     preco: escapeXml(normalizePrice(product.preco)),
     preco_unitario: escapeXml((normalizePrice(product.preco) || '0.01').padEnd(12, '0')),
@@ -1530,9 +1545,9 @@ async function copyXml() {
 
 function exportCsv(doc = currentDoc()) {
   if (!doc) return;
-  const header = ['codigo','nome','preco','unidade','ncm','tributacao','data_lancamento','situacao'];
+  const header = ['codigo','codigo_barras','nome','preco','unidade','ncm','tributacao','data_lancamento','situacao'];
   const lines = [header.join(';')].concat((doc.products || []).map(p => [
-    p.codigo, p.nome, priceBR(p.preco), p.unidade, p.ncm, p.tributacao || 'COBRADO_ANTERIOR', toBRDate(p.data), p.situacao
+    p.codigo, p.codigo_barras || 'SEM GTIN', p.nome, priceBR(p.preco), p.unidade, p.ncm, p.tributacao || 'COBRADO_ANTERIOR', toBRDate(p.data), p.situacao
   ].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';')));
   download(`${sanitizeFileName(doc.title)}.csv`, '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8');
 }
@@ -1569,21 +1584,26 @@ function importCsv(file) {
   reader.onload = () => {
     const text = String(reader.result || '');
     const lines = text.replace(/^\ufeff/, '').split(/\r?\n/).filter(Boolean);
+    const header = lines[0] || '';
+    const hasHeader = /codigo|nome|preco/i.test(header);
+    const hasBarcodeColumn = hasHeader && /codigo_barras|codigo de barras|cod\.?\s*barras|ean|barras/i.test(header);
     const imported = [];
     lines.forEach((line, index) => {
-      if (index === 0 && /codigo|nome|preco/i.test(line)) return;
+      if (index === 0 && hasHeader) return;
       const parts = splitCsvLine(line);
       if (!parts.length) return;
+      const offset = hasBarcodeColumn ? 1 : 0;
       imported.push({
         ...productDefaults(doc, imported.length),
         codigo: parts[0] || nextCode(doc.defaults, imported.length),
-        nome: parts[1] || '',
-        preco: normalizePrice(parts[2] || ''),
-        unidade: parts[3] || doc.defaults.unit || 'UN',
-        ncm: parts[4] || doc.defaults.ncm || '2309.90.10',
-        tributacao: parts[5] || doc.defaults.tax || 'COBRADO_ANTERIOR',
-        data: brToISO(parts[6]) || doc.defaults.date || todayISO(),
-        situacao: parts[7] || doc.defaults.situation || 'A'
+        codigo_barras: hasBarcodeColumn && looksLikeBarcode(parts[1]) ? cleanDigits(parts[1]) : 'SEM GTIN',
+        nome: parts[1 + offset] || '',
+        preco: normalizePrice(parts[2 + offset] || ''),
+        unidade: parts[3 + offset] || doc.defaults.unit || 'UN',
+        ncm: parts[4 + offset] || doc.defaults.ncm || '2309.90.10',
+        tributacao: parts[5 + offset] || doc.defaults.tax || 'COBRADO_ANTERIOR',
+        data: brToISO(parts[6 + offset]) || doc.defaults.date || todayISO(),
+        situacao: parts[7 + offset] || doc.defaults.situation || 'A'
       });
     });
     doc.products = imported;
@@ -1705,22 +1725,23 @@ function renderProducts() {
   const doc = currentDoc();
   if (!doc) {
     $('productCount').textContent = '0 produtos';
-    tbody.innerHTML = '<tr><td class="empty" colspan="10">Crie ou abra um documento.</td></tr>';
+    tbody.innerHTML = '<tr><td class="empty" colspan="11">Crie ou abra um documento.</td></tr>';
     return;
   }
   const query = $('tableSearch').value.trim().toLowerCase();
   const products = doc.products || [];
   $('productCount').textContent = `${products.length} produtos`;
   if (!products.length) {
-    tbody.innerHTML = '<tr><td class="empty" colspan="10">Cole uma lista e clique em Processar texto.</td></tr>';
+    tbody.innerHTML = '<tr><td class="empty" colspan="11">Cole uma lista e clique em Processar texto.</td></tr>';
     return;
   }
   tbody.innerHTML = products.map((p, index) => {
-    const haystack = `${p.codigo} ${p.nome} ${p.preco} ${p.unidade} ${p.ncm} ${p.tributacao} ${p.data} ${p.situacao}`.toLowerCase();
+    const haystack = `${p.codigo} ${p.codigo_barras || ''} ${p.nome} ${p.preco} ${p.unidade} ${p.ncm} ${p.tributacao} ${p.data} ${p.situacao}`.toLowerCase();
     const hidden = query && !haystack.includes(query) ? ' hidden' : '';
     return `<tr data-index="${index}"${hidden}>
       <td class="row-number">${index + 1}</td>
       <td><input data-field="codigo" value="${escapeHtml(p.codigo)}"></td>
+      <td><input data-field="codigo_barras" value="${escapeHtml(p.codigo_barras || 'SEM GTIN')}"></td>
       <td><input data-field="nome" value="${escapeHtml(p.nome)}"></td>
       <td><input data-field="preco" value="${escapeHtml(priceBR(p.preco))}"></td>
       <td>
