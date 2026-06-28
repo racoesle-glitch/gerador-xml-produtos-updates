@@ -563,6 +563,16 @@ pre {
   padding: 2px 4px;
   border-radius: 4px;
 }
+.report-grid {
+  display: grid;
+  gap: 12px;
+}
+.report-grid textarea {
+  min-height: 92px;
+}
+.report-grid textarea.report-details {
+  min-height: 150px;
+}
 .toast {
   position: fixed;
   right: 18px;
@@ -642,10 +652,11 @@ pre {
     <button class="nav-btn" data-screen="documents"><span class="nav-icon">03</span>Documentos Criados</button>
     <div class="nav-footer">
       <button id="openConfig">Modelo do XML</button>
+      <button id="openBugReport">Reportar bug</button>
       <div class="credits" id="appCredits">
         <span>Versao beta publica</span>
-        <strong>Desenvolvido por Ronaldo Junio</strong>
-        <span id="appVersionLabel">Versao 1.2.5-beta</span>
+        <strong>Criado e desenvolvido por Ronaldo Junio</strong>
+        <span id="appVersionLabel">Versao 1.2.7-beta</span>
       </div>
       <span id="storageStatus">Salvamento local ativo</span>
     </div>
@@ -919,11 +930,49 @@ ELIMINADOR SNOUT HERBAL 2L 7898324019562 16,80"></textarea>
   </div>
 </div>
 
+<div class="modal" id="bugReportModal" role="dialog" aria-modal="true" aria-labelledby="bugReportTitle">
+  <div class="dialog">
+    <div class="dialog-head">
+      <h2 id="bugReportTitle">Reportar bug</h2>
+      <div class="tools">
+        <button id="copyBugReport">Copiar relatorio</button>
+        <button class="primary" id="sendBugReport">Enviar por email</button>
+        <button id="closeBugReport">Fechar</button>
+      </div>
+    </div>
+    <div class="dialog-body">
+      <div class="report-grid">
+        <p class="hint" style="margin-top:0">Descreva o problema. O app monta um email com versao, data e diagnostico basico, sem enviar seus produtos ou XML.</p>
+        <div class="field">
+          <label for="bugTitleInput">Titulo do problema</label>
+          <input id="bugTitleInput" placeholder="Ex: erro ao importar CSV">
+        </div>
+        <div class="field">
+          <label for="bugMessageInput">O que aconteceu?</label>
+          <textarea id="bugMessageInput" spellcheck="true" placeholder="Explique o erro, tela, botao ou comportamento estranho."></textarea>
+        </div>
+        <div class="field">
+          <label for="bugStepsInput">Como repetir o problema?</label>
+          <textarea id="bugStepsInput" spellcheck="true" placeholder="1. Abri o app&#10;2. Cliquei em...&#10;3. Apareceu..."></textarea>
+        </div>
+        <div class="field">
+          <label for="bugContactInput">Contato de quem reportou</label>
+          <input id="bugContactInput" placeholder="Nome, telefone ou email opcional">
+        </div>
+        <div class="field">
+          <label for="bugDetailsInput">Relatorio tecnico</label>
+          <textarea class="report-details" id="bugDetailsInput" spellcheck="false" readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">Salvo</div>
 
 <script src="app-config.js"></script>
 <script>
-const APP_VERSION = '1.2.5-beta';
+const APP_VERSION = '1.2.7-beta';
 const DEFAULT_APP_CONFIG = {
   appName: 'XML Facil',
   appSubtitle: 'Gerador de XML para produtos',
@@ -931,9 +980,10 @@ const DEFAULT_APP_CONFIG = {
   documentTitle: 'XML Facil',
   heroTitle: 'Controle seus XMLs de importacao sem refazer servico.',
   heroText: 'Crie documentos, cole listas grandes de produtos, gere XML, salve historico e volte depois para conferir, duplicar ou baixar de novo.',
+  supportEmail: 'junioronaldo896@gmail.com',
   footerLines: [
     'Versao beta publica',
-    'Desenvolvido por Ronaldo Junio'
+    'Criado e desenvolvido por Ronaldo Junio'
   ]
 };
 
@@ -960,7 +1010,7 @@ const DEFAULT_TEMPLATE = `<nfeProc versao="4.00" xmlns="http://www.portalfiscal.
         <indFinal>0</indFinal>
         <indPres>9</indPres>
         <procEmi>0</procEmi>
-        <verProc>GERADOR-CADASTRO-SOFTCOM</verProc>
+        <verProc>GERADOR-CADASTRO-ERP</verProc>
       </ide>
       <emit>
         <CNPJ>11222333000181</CNPJ>
@@ -1036,14 +1086,14 @@ const DEFAULT_TEMPLATE = `<nfeProc versao="4.00" xmlns="http://www.portalfiscal.
         </detPag>
       </pag>
       <infAdic>
-        <infCpl>XML gerado somente para importacao de cadastro de produtos no Softcom; documento sem valor fiscal.</infCpl>
+        <infCpl>XML gerado somente para importacao de cadastro de produtos em sistemas ERP e plataformas compativeis; documento sem valor fiscal.</infCpl>
       </infAdic>
     </infNFe>
   </NFe>
   <protNFe versao="4.00">
     <infProt>
       <tpAmb>2</tpAmb>
-      <verAplic>GERADOR-CADASTRO-SOFTCOM</verAplic>
+      <verAplic>GERADOR-CADASTRO-ERP</verAplic>
       <chNFe>{{chave}}</chNFe>
       <dhRecbto>{{data_emissao}}</dhRecbto>
       <nProt>000000000000000</nProt>
@@ -1702,7 +1752,7 @@ function buildXml(doc) {
     data_emissao: nfeDateTime(doc.date),
     valor_total: products.reduce((sum, p) => sum + priceNumber(p.preco || '0.01'), 0).toFixed(2)
   };
-  return '<?xml version="1.0" encoding="utf-8"?>\n<!--XML nao fiscal criado para importacao/cadastro de produtos no Softcom. Nao e NF-e autorizada pela SEFAZ.-->\n' + state.template.replace(/\{\{(\w+)\}\}/g, (_, key) => docData[key] ?? '');
+  return '<?xml version="1.0" encoding="utf-8"?>\n<!--XML nao fiscal criado para importacao/cadastro de produtos em sistemas ERP e plataformas compativeis. Nao e NF-e autorizada pela SEFAZ.-->\n' + state.template.replace(/\{\{(\w+)\}\}/g, (_, key) => docData[key] ?? '');
 }
 
 function generateXml() {
@@ -2198,6 +2248,88 @@ function saveTemplate() {
   toast('Modelo salvo');
 }
 
+function bugReportDiagnostics() {
+  const doc = currentDoc();
+  const config = getAppConfig();
+  let storageOk = 'sim';
+  try {
+    const key = '__xml_facil_storage_test__';
+    localStorage.setItem(key, '1');
+    localStorage.removeItem(key);
+  } catch {
+    storageOk = 'nao';
+  }
+  return [
+    `App: ${config.appName || DEFAULT_APP_CONFIG.appName}`,
+    `Versao: ${APP_VERSION}`,
+    `Data/hora: ${new Date().toLocaleString('pt-BR')}`,
+    `Sistema: ${navigator.platform || 'indisponivel'}`,
+    `Navegador/WebView: ${navigator.userAgent || 'indisponivel'}`,
+    `Tela: ${state.screen}`,
+    `Documentos salvos: ${state.documents.length}`,
+    `Documento ativo: ${doc ? doc.title : 'nenhum'}`,
+    `Status do documento: ${doc ? doc.status : 'nenhum'}`,
+    `Produtos no documento ativo: ${doc ? (doc.products || []).length : 0}`,
+    `XML gerado no documento ativo: ${doc && doc.xml ? 'sim' : 'nao'}`,
+    `LocalStorage disponivel: ${storageOk}`
+  ].join('\n');
+}
+
+function buildBugReportText() {
+  return [
+    'REPORT DE BUG - XML FACIL',
+    '',
+    'Titulo:',
+    $('bugTitleInput').value.trim() || '(nao informado)',
+    '',
+    'O que aconteceu:',
+    $('bugMessageInput').value.trim() || '(nao informado)',
+    '',
+    'Como repetir:',
+    $('bugStepsInput').value.trim() || '(nao informado)',
+    '',
+    'Contato:',
+    $('bugContactInput').value.trim() || '(nao informado)',
+    '',
+    'Diagnostico tecnico:',
+    $('bugDetailsInput').value.trim() || bugReportDiagnostics()
+  ].join('\n');
+}
+
+function refreshBugReportDetails() {
+  $('bugDetailsInput').value = bugReportDiagnostics();
+}
+
+function openBugReport() {
+  refreshBugReportDetails();
+  $('bugReportModal').classList.add('open');
+  $('bugTitleInput').focus();
+}
+
+function closeBugReport() {
+  $('bugReportModal').classList.remove('open');
+}
+
+function sendBugReportEmail() {
+  const config = getAppConfig();
+  const email = config.supportEmail || DEFAULT_APP_CONFIG.supportEmail;
+  const title = $('bugTitleInput').value.trim() || 'Bug reportado';
+  const subject = `[XML Facil ${APP_VERSION}] ${title}`;
+  const body = buildBugReportText();
+  window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  toast('Abrindo email para enviar o bug');
+}
+
+async function copyBugReportText() {
+  refreshBugReportDetails();
+  try {
+    await writeClipboard(buildBugReportText());
+    toast('Relatorio copiado');
+  } catch {
+    alert('Nao foi possivel copiar automaticamente. Selecione o texto do relatorio tecnico e copie manualmente.');
+  }
+}
+
 document.querySelectorAll('[data-screen]').forEach(el => {
   el.addEventListener('click', () => showScreen(el.dataset.screen));
 });
@@ -2282,6 +2414,13 @@ $('closeConfig').addEventListener('click', () => $('configModal').classList.remo
 $('saveTemplate').addEventListener('click', saveTemplate);
 $('resetTemplate').addEventListener('click', () => {
   $('templateInput').value = DEFAULT_TEMPLATE + '\n\n<!-- PRODUTO_TEMPLATE -->\n' + DEFAULT_PRODUCT_TEMPLATE;
+});
+$('openBugReport').addEventListener('click', openBugReport);
+$('closeBugReport').addEventListener('click', closeBugReport);
+$('sendBugReport').addEventListener('click', sendBugReportEmail);
+$('copyBugReport').addEventListener('click', copyBugReportText);
+['bugTitleInput','bugMessageInput','bugStepsInput','bugContactInput'].forEach(id => {
+  $(id).addEventListener('input', refreshBugReportDetails);
 });
 
 applyAppConfig();
