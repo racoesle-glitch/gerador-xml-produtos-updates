@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gerador XML Produtos</title>
+<title>XML Facil</title>
 <style>
 :root {
   --bg: #f4f7f5;
@@ -16,6 +16,7 @@
   --accent-dark: #0b5730;
   --accent-soft: #e8f6ee;
   --danger: #b42318;
+  --danger-soft: #fff1f0;
   --warn: #9a6700;
   --warn-soft: #fff7e1;
   --ok-soft: #e8f6ee;
@@ -43,6 +44,10 @@ button {
   white-space: nowrap;
 }
 button:hover { border-color: #a8b8b0; }
+button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
 button.primary {
   background: var(--accent);
   border-color: var(--accent);
@@ -96,15 +101,27 @@ textarea {
 }
 .brand {
   display: grid;
-  gap: 4px;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 10px;
   padding: 4px 6px 12px;
   border-bottom: 1px solid rgba(255,255,255,.14);
 }
+.brand-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: contain;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.16);
+}
 .brand b {
+  display: block;
   font-size: 19px;
   line-height: 1.15;
 }
 .brand span {
+  display: block;
   color: #b9d8c6;
   font-size: 12px;
 }
@@ -140,6 +157,10 @@ textarea {
   color: #eaf6ef;
   border-color: rgba(255,255,255,.18);
   background: rgba(255,255,255,.08);
+}
+.storage-error {
+  color: #ffe0d6;
+  font-weight: 700;
 }
 .credits {
   border-top: 1px solid rgba(255,255,255,.14);
@@ -319,6 +340,44 @@ textarea {
   background: var(--warn-soft);
   color: var(--warn);
 }
+.badge.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.validation-panel {
+  margin-bottom: 14px;
+}
+.validation-body {
+  display: grid;
+  gap: 8px;
+}
+.validation-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.issue-list {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  list-style: none;
+}
+.issue-list li {
+  border-left: 3px solid var(--warn);
+  background: var(--warn-soft);
+  color: #5f4100;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.issue-list li.error {
+  border-left-color: var(--danger);
+  background: var(--danger-soft);
+  color: #7a1b13;
+}
 .editor-layout {
   display: grid;
   grid-template-columns: 390px minmax(0, 1fr);
@@ -411,6 +470,12 @@ td input, td select {
 td input:focus, td select:focus {
   outline: 2px solid #b7dfc8;
   background: #fff;
+}
+tr.row-error td {
+  background: #fff8f6;
+}
+tr.row-warning td {
+  background: #fffdf4;
 }
 .row-number {
   width: 44px;
@@ -525,7 +590,7 @@ pre {
     align-items: center;
     overflow: auto;
   }
-  .brand { min-width: 210px; border-bottom: 0; border-right: 1px solid rgba(255,255,255,.14); }
+  .brand { min-width: 230px; border-bottom: 0; border-right: 1px solid rgba(255,255,255,.14); }
   .nav-footer { margin-left: auto; margin-top: 0; min-width: 160px; }
   .home-grid, .editor-layout { grid-template-columns: 1fr; }
   .doc-header { grid-template-columns: 1fr 1fr; }
@@ -566,19 +631,21 @@ pre {
 <div class="shell">
   <aside class="nav">
     <div class="brand">
-      <b>Gerador XML Produtos</b>
-      <span>Sistema local da loja</span>
+      <img class="brand-logo" id="brandLogo" src="app-logo.svg" alt="">
+      <div>
+        <b id="brandName">XML Facil</b>
+        <span id="brandSubtitle">Gerador de XML para produtos</span>
+      </div>
     </div>
     <button class="nav-btn active" data-screen="home"><span class="nav-icon">01</span>Início</button>
     <button class="nav-btn" data-action="open-editor"><span class="nav-icon">02</span>Novo Documento</button>
     <button class="nav-btn" data-screen="documents"><span class="nav-icon">03</span>Documentos Criados</button>
     <div class="nav-footer">
       <button id="openConfig">Modelo do XML</button>
-      <div class="credits">
-        <span>Criado por</span>
-        <strong>Ronaldo Junio</strong>
-        <span>Criado para Le Racoes LTDA</span>
-        <span>CNPJ 24.635.672/0001-31</span>
+      <div class="credits" id="appCredits">
+        <span>Versao beta publica</span>
+        <strong>Desenvolvido por Ronaldo Junio</strong>
+        <span id="appVersionLabel">Versao 1.2.5-beta</span>
       </div>
       <span id="storageStatus">Salvamento local ativo</span>
     </div>
@@ -659,8 +726,8 @@ pre {
 7891234567890|RAÇÃO PREMIUM 15KG|199,90
 SHAMPOO PET 500ML;19,90
 AREIA HIGIÊNICA 4KG 29,90
-ELIMINADOR SNOUT HERBAL 2L 16,80 7898324019562"></textarea>
-            <p class="hint">Formatos aceitos: codigo|nome|preco, nome;preco, produto preco codigo de barras, planilha copiada do Excel ou uma linha por produto.</p>
+ELIMINADOR SNOUT HERBAL 2L 7898324019562 16,80"></textarea>
+            <p class="hint">Formatos aceitos: codigo|nome|preco, nome;preco, nome codigo de barras preco, produto preco codigo de barras, planilha copiada do Excel ou uma linha por produto. Codigo de barras e opcional.</p>
           </section>
 
           <section class="section">
@@ -724,6 +791,17 @@ ELIMINADOR SNOUT HERBAL 2L 16,80 7898324019562"></textarea>
         </aside>
 
         <div>
+          <section class="panel validation-panel" aria-live="polite">
+            <div class="panel-head">
+              <h2>Conferência do documento</h2>
+              <span id="validationStatus" class="badge warn">Aguardando produtos</span>
+            </div>
+            <div class="panel-body validation-body">
+              <p class="validation-summary" id="validationSummary">Cole ou importe produtos para validar antes de gerar o XML.</p>
+              <ul class="issue-list" id="validationIssues"></ul>
+            </div>
+          </section>
+
           <section class="panel">
             <div class="panel-head">
               <h2>Produtos do documento</h2>
@@ -738,8 +816,8 @@ ELIMINADOR SNOUT HERBAL 2L 16,80 7898324019562"></textarea>
                   <tr>
                     <th class="row-number">#</th>
                     <th style="width:120px">Código</th>
-                    <th style="width:145px">Cod. barras</th>
                     <th>Nome</th>
+                    <th style="width:145px">Cod. barras</th>
                     <th style="width:120px">Preço</th>
                     <th style="width:90px">Unidade</th>
                     <th style="width:130px">NCM / NF-e</th>
@@ -843,7 +921,22 @@ ELIMINADOR SNOUT HERBAL 2L 16,80 7898324019562"></textarea>
 
 <div class="toast" id="toast">Salvo</div>
 
+<script src="app-config.js"></script>
 <script>
+const APP_VERSION = '1.2.5-beta';
+const DEFAULT_APP_CONFIG = {
+  appName: 'XML Facil',
+  appSubtitle: 'Gerador de XML para produtos',
+  logoUrl: 'app-logo.svg',
+  documentTitle: 'XML Facil',
+  heroTitle: 'Controle seus XMLs de importacao sem refazer servico.',
+  heroText: 'Crie documentos, cole listas grandes de produtos, gere XML, salve historico e volte depois para conferir, duplicar ou baixar de novo.',
+  footerLines: [
+    'Versao beta publica',
+    'Desenvolvido por Ronaldo Junio'
+  ]
+};
+
 const DEFAULT_TEMPLATE = `<nfeProc versao="4.00" xmlns="http://www.portalfiscal.inf.br/nfe">
   <NFe>
     <infNFe versao="4.00" Id="NFe{{chave}}">
@@ -889,8 +982,8 @@ const DEFAULT_TEMPLATE = `<nfeProc versao="4.00" xmlns="http://www.portalfiscal.
         <CRT>3</CRT>
       </emit>
       <dest>
-        <CNPJ>24635672000131</CNPJ>
-        <xNome>LE RACOES LTDA</xNome>
+        <CNPJ>00000000000000</CNPJ>
+        <xNome>EMPRESA DESTINATARIA</xNome>
         <enderDest>
           <xLgr>RUA ANAPURUS</xLgr>
           <nro>242</nro>
@@ -995,8 +1088,8 @@ const DEFAULT_PRODUCT_TEMPLATE = `      <det nItem="{{item}}">
 
 const STORAGE_DOCS = 'xmlGeneratorDocuments.v2';
 const STORAGE_ACTIVE = 'xmlGeneratorActiveDocumentId.v2';
-const STORAGE_TEMPLATE = 'xmlTemplate.v5';
-const STORAGE_PRODUCT_TEMPLATE = 'productTemplate.v5';
+const STORAGE_TEMPLATE = 'xmlTemplate.v6';
+const STORAGE_PRODUCT_TEMPLATE = 'productTemplate.v6';
 
 const state = {
   screen: 'home',
@@ -1009,6 +1102,46 @@ const state = {
 const $ = (id) => document.getElementById(id);
 const tbody = $('tbody');
 const docsTbody = $('docsTbody');
+
+function getAppConfig() {
+  const remoteConfig = window.XML_FACIL_CONFIG && typeof window.XML_FACIL_CONFIG === 'object'
+    ? window.XML_FACIL_CONFIG
+    : {};
+  return { ...DEFAULT_APP_CONFIG, ...remoteConfig };
+}
+
+function applyAppConfig() {
+  const config = getAppConfig();
+  document.title = config.documentTitle || config.appName || DEFAULT_APP_CONFIG.documentTitle;
+  $('brandName').textContent = config.appName || DEFAULT_APP_CONFIG.appName;
+  $('brandSubtitle').textContent = config.appSubtitle || DEFAULT_APP_CONFIG.appSubtitle;
+
+  const logo = $('brandLogo');
+  if (config.logoUrl) {
+    logo.src = config.logoUrl;
+    logo.style.display = '';
+  } else {
+    logo.style.display = 'none';
+  }
+
+  const heroTitle = document.querySelector('.hero h2');
+  const heroText = document.querySelector('.hero p');
+  if (heroTitle && config.heroTitle) heroTitle.textContent = config.heroTitle;
+  if (heroText && config.heroText) heroText.textContent = config.heroText;
+
+  const credits = $('appCredits');
+  credits.innerHTML = '';
+  (Array.isArray(config.footerLines) && config.footerLines.length ? config.footerLines : DEFAULT_APP_CONFIG.footerLines)
+    .forEach((line, index) => {
+      const el = document.createElement(index === 1 ? 'strong' : 'span');
+      el.textContent = line;
+      credits.appendChild(el);
+    });
+  const version = document.createElement('span');
+  version.id = 'appVersionLabel';
+  version.textContent = 'Versao ' + APP_VERSION;
+  credits.appendChild(version);
+}
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
@@ -1091,11 +1224,19 @@ function loadAll() {
 }
 
 function saveAll() {
-  localStorage.setItem(STORAGE_DOCS, JSON.stringify(state.documents));
-  if (state.activeId) localStorage.setItem(STORAGE_ACTIVE, state.activeId);
-  localStorage.setItem(STORAGE_TEMPLATE, state.template);
-  localStorage.setItem(STORAGE_PRODUCT_TEMPLATE, state.productTemplate);
-  $('storageStatus').textContent = 'Salvo às ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const status = $('storageStatus');
+  try {
+    localStorage.setItem(STORAGE_DOCS, JSON.stringify(state.documents));
+    if (state.activeId) localStorage.setItem(STORAGE_ACTIVE, state.activeId);
+    localStorage.setItem(STORAGE_TEMPLATE, state.template);
+    localStorage.setItem(STORAGE_PRODUCT_TEMPLATE, state.productTemplate);
+    status.classList.remove('storage-error');
+    status.textContent = 'Salvo às ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  } catch (error) {
+    status.classList.add('storage-error');
+    status.textContent = 'Falha ao salvar localmente';
+    console.error('Erro ao salvar dados locais:', error);
+  }
 }
 
 function toast(text) {
@@ -1244,6 +1385,63 @@ function docTotal(doc) {
   return (doc.products || []).reduce((sum, p) => sum + priceNumber(p.preco), 0);
 }
 
+function isValidISODate(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) && !Number.isNaN(new Date(value + 'T12:00:00').getTime());
+}
+
+function validateDocument(doc) {
+  const issues = [];
+  const products = doc ? (doc.products || []) : [];
+  const seenCodes = new Map();
+
+  if (!doc) {
+    return { errors: 0, warnings: 0, issues: [{ level: 'warning', text: 'Crie ou abra um documento para começar.' }] };
+  }
+  if (!products.length) {
+    return { errors: 0, warnings: 1, issues: [{ level: 'warning', text: 'Nenhum produto na tabela ainda.' }] };
+  }
+
+  products.forEach((product, index) => {
+    const line = index + 1;
+    const code = cleanDigits(product.codigo);
+    const barcodeRaw = String(product.codigo_barras || '').trim();
+    const barcode = cleanDigits(barcodeRaw);
+    const ncm = cleanDigits(product.ncm);
+    const price = priceNumber(product.preco);
+
+    if (!code) {
+      issues.push({ level: 'error', index, text: `Linha ${line}: informe o código do produto.` });
+    } else if (seenCodes.has(code)) {
+      issues.push({ level: 'error', index, text: `Linha ${line}: código ${code} duplicado com a linha ${seenCodes.get(code) + 1}.` });
+    } else {
+      seenCodes.set(code, index);
+    }
+
+    if (!String(product.nome || '').trim()) {
+      issues.push({ level: 'error', index, text: `Linha ${line}: informe o nome do produto.` });
+    }
+    if (!Number.isFinite(price) || price <= 0) {
+      issues.push({ level: 'error', index, text: `Linha ${line}: preço precisa ser maior que zero.` });
+    }
+    if (barcodeRaw && (barcode.length < 8 || barcode.length > 14)) {
+      issues.push({ level: 'error', index, text: `Linha ${line}: código de barras deve ter de 8 a 14 números, ou ficar vazio.` });
+    }
+    if (ncm.length !== 8) {
+      issues.push({ level: 'error', index, text: `Linha ${line}: NCM / NF-e precisa ter 8 números.` });
+    }
+    if (!isValidISODate(product.data)) {
+      issues.push({ level: 'error', index, text: `Linha ${line}: data de lançamento inválida.` });
+    }
+    if (!['A', 'I'].includes(product.situacao)) {
+      issues.push({ level: 'error', index, text: `Linha ${line}: situação deve ser A ou I.` });
+    }
+  });
+
+  const errors = issues.filter(issue => issue.level === 'error').length;
+  const warnings = issues.filter(issue => issue.level === 'warning').length;
+  return { errors, warnings, issues };
+}
+
 function showScreen(screen) {
   state.screen = screen;
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
@@ -1334,6 +1532,8 @@ function splitLine(line) {
       return trimmed.split(sep).map(part => part.trim()).filter(Boolean);
     }
   }
+  const withBarcodeBeforePrice = trimmed.match(/^(.*?)\s+(\d{8,14})\s+((?:R\$)?\s*\d{1,6}(?:[.,]\d{2})?)$/i);
+  if (withBarcodeBeforePrice) return [withBarcodeBeforePrice[1].trim(), withBarcodeBeforePrice[2].trim(), withBarcodeBeforePrice[3].trim()];
   const withBarcode = trimmed.match(/^(.*?)\s+((?:R\$)?\s*\d{1,6}(?:[.,]\d{2})?)\s+(\d{8,14})$/i);
   if (withBarcode) return [withBarcode[1].trim(), withBarcode[2].trim(), withBarcode[3].trim()];
   const match = trimmed.match(/^(.*?)[\s-]+((?:R\$)?\s*\d{1,6}(?:[.,]\d{2})?)$/i);
@@ -1349,6 +1549,10 @@ function looksLikeBarcode(value) {
   return digits.length >= 8 && digits.length <= 14;
 }
 
+function optionalBarcode(value) {
+  return looksLikeBarcode(value) ? cleanDigits(value) : '';
+}
+
 function looksLikePrice(value) {
   return /(?:^|[^\d])(?:R\$)?\s*\d{1,6}(?:[.,]\d{2})(?:$|[^\d])/.test(String(value || ''));
 }
@@ -1362,7 +1566,7 @@ function productDefaults(doc, index) {
   const defaults = doc.defaults || {};
   return {
     codigo: nextCode(defaults, index),
-    codigo_barras: 'SEM GTIN',
+    codigo_barras: '',
     nome: '',
     preco: '',
     unidade: defaults.unit || 'UN',
@@ -1430,6 +1634,7 @@ function addRow() {
   doc.xml = '';
   doc.updatedAt = nowISO();
   saveAll();
+  renderValidation();
   renderProducts();
   toast('Linha adicionada');
 }
@@ -1457,12 +1662,13 @@ function updateProductFromInput(input) {
   doc.xml = '';
   doc.updatedAt = nowISO();
   saveAll();
+  renderValidation();
   renderPreview();
   renderHome();
 }
 
 function fillTemplate(template, product, index) {
-  const barcode = looksLikeBarcode(product.codigo_barras) ? cleanDigits(product.codigo_barras) : 'SEM GTIN';
+  const barcode = optionalBarcode(product.codigo_barras) || 'SEM GTIN';
   const data = {
     item: String(index + 1),
     codigo: escapeXml(product.codigo),
@@ -1508,6 +1714,12 @@ function generateXml() {
     toast('Nenhum produto na tabela');
     return;
   }
+  const validation = validateDocument(doc);
+  if (validation.errors) {
+    renderValidation();
+    toast('Corrija a conferência antes de gerar');
+    return;
+  }
   doc.xml = buildXml(doc);
   doc.status = 'xml-gerado';
   doc.updatedAt = nowISO();
@@ -1530,24 +1742,65 @@ function download(filename, content, type = 'application/xml;charset=utf-8') {
 
 function downloadXml(doc = currentDoc()) {
   if (!doc) return;
+  if (!doc.xml) {
+    const validation = validateDocument(doc);
+    if (validation.errors) {
+      renderValidation();
+      toast('Corrija a conferência antes de baixar');
+      return;
+    }
+  }
   const xml = doc.xml || buildXml(doc);
   download(`${sanitizeFileName(doc.title)}.xml`, xml);
   toast('XML baixado');
 }
 
+async function writeClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      // Alguns WebViews e arquivos locais bloqueiam a API moderna.
+    }
+  }
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand('copy');
+  textarea.remove();
+  if (!copied) throw new Error('Clipboard indisponível');
+}
+
 async function copyXml() {
   const doc = currentDoc();
   if (!doc) return;
+  if (!doc.xml) {
+    const validation = validateDocument(doc);
+    if (validation.errors) {
+      renderValidation();
+      toast('Corrija a conferência antes de copiar');
+      return;
+    }
+  }
   const xml = doc.xml || buildXml(doc);
-  await navigator.clipboard.writeText(xml);
-  toast('XML copiado');
+  try {
+    await writeClipboard(xml);
+    toast('XML copiado');
+  } catch {
+    alert('Não foi possível copiar automaticamente. Use o botão Baixar XML ou copie pela pré-visualização.');
+  }
 }
 
 function exportCsv(doc = currentDoc()) {
   if (!doc) return;
-  const header = ['codigo','codigo_barras','nome','preco','unidade','ncm','tributacao','data_lancamento','situacao'];
+  const header = ['codigo','nome','codigo_barras','preco','unidade','ncm','tributacao','data_lancamento','situacao'];
   const lines = [header.join(';')].concat((doc.products || []).map(p => [
-    p.codigo, p.codigo_barras || 'SEM GTIN', p.nome, priceBR(p.preco), p.unidade, p.ncm, p.tributacao || 'COBRADO_ANTERIOR', toBRDate(p.data), p.situacao
+    p.codigo, p.nome, optionalBarcode(p.codigo_barras), priceBR(p.preco), p.unidade, p.ncm, p.tributacao || 'COBRADO_ANTERIOR', toBRDate(p.data), p.situacao
   ].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';')));
   download(`${sanitizeFileName(doc.title)}.csv`, '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8');
 }
@@ -1577,6 +1830,75 @@ function splitCsvLine(line) {
   return result;
 }
 
+function normalizeHeaderName(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function findHeaderIndex(headers, patterns) {
+  return headers.findIndex(header => patterns.some(pattern => pattern.test(header)));
+}
+
+function csvValue(parts, index) {
+  return index >= 0 && index < parts.length ? parts[index] : '';
+}
+
+function productFromCsvParts(parts, doc, importedIndex, columns, hasHeader) {
+  const defaults = productDefaults(doc, importedIndex);
+  if (hasHeader) {
+    return {
+      ...defaults,
+      codigo: cleanDigits(csvValue(parts, columns.codigo)) || nextCode(doc.defaults || {}, importedIndex),
+      nome: csvValue(parts, columns.nome) || '',
+      codigo_barras: optionalBarcode(csvValue(parts, columns.codigo_barras)),
+      preco: normalizePrice(csvValue(parts, columns.preco) || ''),
+      unidade: csvValue(parts, columns.unidade) || defaults.unidade,
+      ncm: csvValue(parts, columns.ncm) || defaults.ncm,
+      tributacao: csvValue(parts, columns.tributacao) || defaults.tributacao,
+      data: brToISO(csvValue(parts, columns.data)) || defaults.data,
+      situacao: csvValue(parts, columns.situacao) || defaults.situacao
+    };
+  }
+
+  if (parts.length >= 9) {
+    return {
+      ...defaults,
+      codigo: cleanDigits(parts[0]) || nextCode(doc.defaults || {}, importedIndex),
+      nome: parts[1] || '',
+      codigo_barras: optionalBarcode(parts[2]),
+      preco: normalizePrice(parts[3] || ''),
+      unidade: parts[4] || defaults.unidade,
+      ncm: parts[5] || defaults.ncm,
+      tributacao: parts[6] || defaults.tributacao,
+      data: brToISO(parts[7]) || defaults.data,
+      situacao: parts[8] || defaults.situacao
+    };
+  }
+
+  const inferredBarcodeIndex = looksLikeBarcode(parts[2])
+    ? 2
+    : (looksLikeBarcode(parts[1]) && !looksLikePrice(parts[2]) ? 1 : -1);
+  const barcodeIndex = inferredBarcodeIndex >= 0 ? inferredBarcodeIndex : -1;
+  const nameIndex = barcodeIndex === 1 ? 2 : 1;
+  const priceIndex = barcodeIndex >= 0 ? 3 : 2;
+  return {
+    ...defaults,
+    codigo: cleanDigits(parts[0]) || nextCode(doc.defaults || {}, importedIndex),
+    nome: parts[nameIndex] || '',
+    codigo_barras: barcodeIndex >= 0 ? optionalBarcode(parts[barcodeIndex]) : '',
+    preco: normalizePrice(parts[priceIndex] || ''),
+    unidade: parts[priceIndex + 1] || defaults.unidade,
+    ncm: parts[priceIndex + 2] || defaults.ncm,
+    tributacao: parts[priceIndex + 3] || defaults.tributacao,
+    data: brToISO(parts[priceIndex + 4]) || defaults.data,
+    situacao: parts[priceIndex + 5] || defaults.situacao
+  };
+}
+
 function importCsv(file) {
   const doc = currentDoc();
   if (!doc) return;
@@ -1585,26 +1907,25 @@ function importCsv(file) {
     const text = String(reader.result || '');
     const lines = text.replace(/^\ufeff/, '').split(/\r?\n/).filter(Boolean);
     const header = lines[0] || '';
-    const hasHeader = /codigo|nome|preco/i.test(header);
-    const hasBarcodeColumn = hasHeader && /codigo_barras|codigo de barras|cod\.?\s*barras|ean|barras/i.test(header);
+    const hasHeader = /codigo|nome|preco|produto|descricao/.test(normalizeHeaderName(header));
+    const headerParts = hasHeader ? splitCsvLine(header).map(normalizeHeaderName) : [];
+    const columns = {
+      codigo: findHeaderIndex(headerParts, [/^codigo$/, /^cod_produto$/, /^cprod$/, /^sku$/]),
+      nome: findHeaderIndex(headerParts, [/^nome$/, /^produto$/, /^descricao$/, /^descricao_produto$/]),
+      codigo_barras: findHeaderIndex(headerParts, [/codigo_barras/, /cod_barras/, /^ean$/, /^gtin$/, /barras/]),
+      preco: findHeaderIndex(headerParts, [/^preco$/, /^valor$/, /^preco_venda$/, /^vlr$/]),
+      unidade: findHeaderIndex(headerParts, [/^unidade$/, /^un$/, /^und$/]),
+      ncm: findHeaderIndex(headerParts, [/^ncm$/, /^nfe$/, /ncm_nfe/]),
+      tributacao: findHeaderIndex(headerParts, [/^tributacao$/, /^icms$/, /^imposto$/]),
+      data: findHeaderIndex(headerParts, [/^data$/, /^data_lancamento$/, /^lancamento$/]),
+      situacao: findHeaderIndex(headerParts, [/^situacao$/, /^status$/])
+    };
     const imported = [];
     lines.forEach((line, index) => {
       if (index === 0 && hasHeader) return;
       const parts = splitCsvLine(line);
       if (!parts.length) return;
-      const offset = hasBarcodeColumn ? 1 : 0;
-      imported.push({
-        ...productDefaults(doc, imported.length),
-        codigo: parts[0] || nextCode(doc.defaults, imported.length),
-        codigo_barras: hasBarcodeColumn && looksLikeBarcode(parts[1]) ? cleanDigits(parts[1]) : 'SEM GTIN',
-        nome: parts[1 + offset] || '',
-        preco: normalizePrice(parts[2 + offset] || ''),
-        unidade: parts[3 + offset] || doc.defaults.unit || 'UN',
-        ncm: parts[4 + offset] || doc.defaults.ncm || '2309.90.10',
-        tributacao: parts[5 + offset] || doc.defaults.tax || 'COBRADO_ANTERIOR',
-        data: brToISO(parts[6 + offset]) || doc.defaults.date || todayISO(),
-        situacao: parts[7 + offset] || doc.defaults.situation || 'A'
-      });
+      imported.push(productFromCsvParts(parts, doc, imported.length, columns, hasHeader));
     });
     doc.products = imported;
     doc.xml = '';
@@ -1659,7 +1980,7 @@ function clearCurrentTable() {
 function exportBackup() {
   const backup = {
     exportedAt: nowISO(),
-    app: 'Gerador XML Produtos',
+    app: getAppConfig().appName || 'XML Facil',
     documents: state.documents,
     template: state.template,
     productTemplate: state.productTemplate
@@ -1692,9 +2013,42 @@ function importBackup(file) {
 function render() {
   applyDocToForm();
   renderHome();
+  renderValidation();
   renderProducts();
   renderPreview();
   renderDocuments();
+}
+
+function renderValidation() {
+  const doc = currentDoc();
+  const validation = validateDocument(doc);
+  const status = $('validationStatus');
+  const summary = $('validationSummary');
+  const list = $('validationIssues');
+  const products = doc ? (doc.products || []) : [];
+
+  if (!products.length) {
+    status.textContent = 'Aguardando produtos';
+    status.className = 'badge warn';
+    summary.textContent = validation.issues[0]?.text || 'Cole ou importe produtos para validar antes de gerar o XML.';
+    list.innerHTML = '';
+    return;
+  }
+
+  if (validation.errors) {
+    status.textContent = validation.errors === 1 ? '1 correção' : `${validation.errors} correções`;
+    status.className = 'badge danger';
+    summary.textContent = 'Revise os itens abaixo antes de gerar, baixar ou copiar o XML.';
+  } else {
+    status.textContent = 'Pronto para XML';
+    status.className = 'badge ok';
+    summary.textContent = `${products.length} produto${products.length === 1 ? '' : 's'} conferido${products.length === 1 ? '' : 's'} e pronto${products.length === 1 ? '' : 's'} para gerar XML.`;
+  }
+
+  list.innerHTML = validation.issues.length
+    ? validation.issues.slice(0, 8).map(issue => `<li class="${issue.level === 'error' ? 'error' : 'warning'}">${escapeHtml(issue.text)}</li>`).join('') +
+      (validation.issues.length > 8 ? `<li>Mais ${validation.issues.length - 8} item${validation.issues.length - 8 === 1 ? '' : 's'} para revisar.</li>` : '')
+    : '';
 }
 
 function renderHome() {
@@ -1730,6 +2084,7 @@ function renderProducts() {
   }
   const query = $('tableSearch').value.trim().toLowerCase();
   const products = doc.products || [];
+  const validation = validateDocument(doc);
   $('productCount').textContent = `${products.length} produtos`;
   if (!products.length) {
     tbody.innerHTML = '<tr><td class="empty" colspan="11">Cole uma lista e clique em Processar texto.</td></tr>';
@@ -1738,11 +2093,13 @@ function renderProducts() {
   tbody.innerHTML = products.map((p, index) => {
     const haystack = `${p.codigo} ${p.codigo_barras || ''} ${p.nome} ${p.preco} ${p.unidade} ${p.ncm} ${p.tributacao} ${p.data} ${p.situacao}`.toLowerCase();
     const hidden = query && !haystack.includes(query) ? ' hidden' : '';
-    return `<tr data-index="${index}"${hidden}>
+    const rowIssues = validation.issues.filter(issue => issue.index === index);
+    const rowClass = rowIssues.some(issue => issue.level === 'error') ? ' class="row-error"' : rowIssues.length ? ' class="row-warning"' : '';
+    return `<tr data-index="${index}"${hidden}${rowClass}>
       <td class="row-number">${index + 1}</td>
       <td><input data-field="codigo" value="${escapeHtml(p.codigo)}"></td>
-      <td><input data-field="codigo_barras" value="${escapeHtml(p.codigo_barras || 'SEM GTIN')}"></td>
       <td><input data-field="nome" value="${escapeHtml(p.nome)}"></td>
+      <td><input data-field="codigo_barras" value="${escapeHtml(optionalBarcode(p.codigo_barras))}"></td>
       <td><input data-field="preco" value="${escapeHtml(priceBR(p.preco))}"></td>
       <td>
         <select data-field="unidade">
@@ -1927,6 +2284,7 @@ $('resetTemplate').addEventListener('click', () => {
   $('templateInput').value = DEFAULT_TEMPLATE + '\n\n<!-- PRODUTO_TEMPLATE -->\n' + DEFAULT_PRODUCT_TEMPLATE;
 });
 
+applyAppConfig();
 loadAll();
 render();
 </script>

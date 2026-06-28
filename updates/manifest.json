@@ -1,11 +1,19 @@
 ﻿{
-  "app": "LE XML FÃ¡cil",
-  "version": "1.2.1",
-  "notes": "Versao 1.2.1",
+  "app": "XML Facil",
+  "version": "1.2.5-beta",
+  "notes": "Versao 1.2.5-beta",
   "files": [
     {
       "name": "gerador_xml_produtos.html",
-      "sha256": "38a0cfea5342eff9ebabb32bab68a0b0a42de6f6a395d449b0ecc175230bd8a8"
+      "sha256": "91be82f2d882997fb2dfbd6ddc74fcf440db377a221d560cbdd4b1426d74363f"
+    },
+    {
+      "name": "app-config.js",
+      "sha256": "4b628416a7e240760705871a3fb2fb14abc9dfd768277c74ee43c0226561e9a3"
+    },
+    {
+      "name": "app-logo.svg",
+      "sha256": "2caa4eb402de7938c5508833a69f68718ede2c04c0d7422bfcf750c0b42d7a9f"
     }
   ]
 }

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="XML Facil">
+  <defs>
+    <linearGradient id="bg" x1="34" y1="24" x2="218" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14834a"/>
+      <stop offset="1" stop-color="#0a4d2b"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#052414" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect x="16" y="16" width="224" height="224" rx="46" fill="url(#bg)"/>
+  <path d="M62 54h86l46 46v102H62V54z" fill="#f4fbf7" filter="url(#shadow)"/>
+  <path d="M148 54v46h46" fill="#ccebd8"/>
+  <path d="M82 126h92" stroke="#0d5d32" stroke-width="12" stroke-linecap="round"/>
+  <path d="M82 154h70" stroke="#0d5d32" stroke-width="12" stroke-linecap="round"/>
+  <path d="M82 182h92" stroke="#0d5d32" stroke-width="12" stroke-linecap="round"/>
+  <text x="128" y="98" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="39" font-weight="800" fill="#ffffff">XML</text>
+</svg>
